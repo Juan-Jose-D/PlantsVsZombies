@@ -37,12 +37,10 @@ public class PlantsVsZombiesGUI extends JFrame {
     private void mostrarPantallaInicial() {
         JPanel panelInicial = new JPanel(new BorderLayout());
 
-        // Título del juego
         JLabel tituloLabel = new JLabel("Plantas vs Zombies", SwingConstants.CENTER);
-        tituloLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        tituloLabel.setFont(new Font("Arial", Font.BOLD, 40));
         panelInicial.add(tituloLabel, BorderLayout.NORTH);
 
-        // Panel de selección de dificultad
         JPanel dificultadPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         dificultadPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
 
