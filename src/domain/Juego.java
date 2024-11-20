@@ -10,7 +10,7 @@ public class Juego {
     private ScheduledExecutorService scheduler;
 
     public Juego() {
-        this.soles = 50; // Valor inicial de soles
+        this.soles = 50;
         this.scheduler = Executors.newScheduledThreadPool(10); // Manejar varias tareas concurrentes
     }
 
@@ -31,15 +31,23 @@ public class Juego {
         scheduler.scheduleAtFixedRate(this::actualizarEstado, 0, 1, TimeUnit.SECONDS);
     }
 
+    public boolean colocarPlanta(Planta planta, int fila, int columna) {
+        if (planta.getCosto() <= soles) {
+            tablero.getCelda(fila, columna).setContenido(planta);
+            restarSoles(planta.getCosto());
+            return true;
+        }
+        return false;
+    }
+
     public void actualizarEstado() {
         System.out.println("Estado del juego actualizado.");
         // Aquí podrías manejar colisiones, mover zombis, etc.
     }
 
     public void finish() {
-        System.out.println("Juego terminado.");
         if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown(); // Detener todas las tareas programadas
+            scheduler.shutdown();
         }
     }
 

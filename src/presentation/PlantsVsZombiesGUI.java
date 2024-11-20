@@ -66,15 +66,12 @@ public class PlantsVsZombiesGUI extends JFrame {
     private void iniciarJuego(String dificultad) {
         this.dificultad = dificultad;
 
-        // Configurar el juego según la dificultad
         juego = new Juego();
         Tablero tablero = new Tablero(5, 8);
         juego.setTablero(tablero);
 
-        // Configurar zombies según la dificultad
         configurarZombiesPorDificultad(dificultad);
 
-        // Limpiar el frame y preparar la interfaz principal del juego
         getContentPane().removeAll();
         setLayout(new BorderLayout());
 
@@ -227,59 +224,52 @@ public class PlantsVsZombiesGUI extends JFrame {
         Tablero tablero = juego.getTablero();
         for (int i = 0; i < tablero.getFilas(); i++) {
             for (int j = 0; j < tablero.getColumnas(); j++) {
-                JButton celdaBoton = new JButton();
-                celdaBoton.setPreferredSize(new Dimension(60, 60));
-                actualizarCelda(celdaBoton, i, j);
-
-                int finalI = i;
-                int finalJ = j;
-                celdaBoton.addActionListener(e -> {
-                    if (plantaSeleccionada != null) {
-                        if (plantaSeleccionada.getText().equals("Lanzaguisantes")) {
-                            Lanzaguisantes lanzaguisantes = new Lanzaguisantes();
-                            if (lanzaguisantes.getCosto() <= juego.getSoles()) {
-                                juego.getTablero().getCelda(finalI, finalJ).setContenido(lanzaguisantes);
-                                ImageIcon icon = new ImageIcon("D:\\POOB\\PlantsVsZombies\\src\\domain\\lanzaguisantes.png");
-                                Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                                celdaBoton.setIcon(new ImageIcon(image));
-                                celdaBoton.setText("");
-                                lanzaguisantes.iniciarDisparo();
-                                juego.restarSoles(lanzaguisantes.getCosto());
-                                actualizarSoles();
-                            }
-                        }
-
-                        if (plantaSeleccionada.getText().equals("Nuez")) {
-                            Nuez nuez = new Nuez();
-                            if (nuez.getCosto() <= juego.getSoles()) {
-                                juego.getTablero().getCelda(finalI, finalJ).setContenido(nuez);
-                                ImageIcon icon = new ImageIcon("D:\\POOB\\PlantsVsZombies\\src\\domain\\nuez.png");
-                                Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                                celdaBoton.setIcon(new ImageIcon(image));
-                                celdaBoton.setText("");
-                                juego.restarSoles(nuez.getCosto());
-                                actualizarSoles();
-                            }
-                        }
-
-                        if (plantaSeleccionada.getText().equals("Girasol")) {
-                            Girasol girasol = new Girasol();
-                            if (girasol.getCosto() <= juego.getSoles()) {
-                                juego.getTablero().getCelda(finalI, finalJ).setContenido(girasol);
-                                ImageIcon icon = new ImageIcon("D:\\POOB\\PlantsVsZombies\\src\\domain\\girasol.png");
-                                Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                                celdaBoton.setIcon(new ImageIcon(image));
-                                celdaBoton.setText("");
-                                juego.restarSoles(girasol.getCosto());
-                                actualizarSoles();
-                            }
-                        }
-                    }
-                });
-
+                JButton celdaBoton = crearBotonCelda(i, j);
                 gridPanel.add(celdaBoton);
             }
         }
+    }
+
+    private JButton crearBotonCelda(int fila, int columna) {
+        JButton celdaBoton = new JButton();
+        celdaBoton.setPreferredSize(new Dimension(60, 60));
+
+        actualizarCelda(celdaBoton, fila, columna);
+        accionColocarPlanta(celdaBoton, fila, columna);
+
+        return celdaBoton;
+    }
+
+    private void accionColocarPlanta(JButton celdaBoton, int fila, int columna) {
+        celdaBoton.addActionListener(e -> {
+            if (plantaSeleccionada != null) {
+                Planta planta = crearPlantaSegunSeleccion();
+
+                if (planta != null && juego.colocarPlanta(planta, fila, columna)) {
+                    actualizarIconoPlanta(celdaBoton);
+                    actualizarSoles();
+                }
+            }
+        });
+    }
+
+    private Planta crearPlantaSegunSeleccion() {
+        if (plantaSeleccionada.getText().equals("Lanzaguisantes")) {
+            return new Lanzaguisantes();
+        } else if (plantaSeleccionada.getText().equals("Nuez")) {
+            return new Nuez();
+        } else if (plantaSeleccionada.getText().equals("Girasol")) {
+            return new Girasol();
+        }
+        return null;
+    }
+
+    private void actualizarIconoPlanta(JButton celdaBoton) {
+        String nombrePlanta = plantaSeleccionada.getText().toLowerCase();
+        ImageIcon icon = new ImageIcon("D:\\POOB\\PlantsVsZombies\\src\\domain\\" + nombrePlanta + ".png");
+        Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        celdaBoton.setIcon(new ImageIcon(image));
+        celdaBoton.setText("");
     }
 
     private void actualizarCelda(JButton boton, int fila, int columna) {
