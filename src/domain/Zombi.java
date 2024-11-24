@@ -1,10 +1,12 @@
 package domain;
 
-public class Zombi {
+public abstract class Zombi {
 
     private int vida;
     private int daño;
     private int velocidad;
+
+    public abstract String getImagePath();
 
     public void recibirDaño(){
 

@@ -5,6 +5,7 @@ import presentation.PlantsVsZombiesGUI;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.Random;
 
 public class Juego {
     private PlantsVsZombiesGUI plantsVsZombiesGUI;
@@ -19,8 +20,66 @@ public class Juego {
         this.scheduler = Executors.newScheduledThreadPool(10);
     }
 
-    public void iniciarJuego(String dificultad) {
-        configurarZombiesPorDificultad(dificultad);
+    public void iniciarJuego(String modo) {
+        configurarSegunModo(modo);
+    }
+
+    public void configurarSegunModo(String modo){
+        switch (modo){
+            case "PvM":
+                playerVsMachine();
+                break;
+
+            case "MvM":
+                break;
+
+            case "PvP":
+                break;
+            default:
+        }
+    }
+
+    public void playerVsMachine() {
+        scheduler.scheduleAtFixedRate(() -> {
+            Random random = new Random();
+            boolean zombiAgregado = false;
+
+            for (int intentos = 0; intentos < 10 && !zombiAgregado; intentos++) {
+                int filaAleatoria = random.nextInt(tablero.getFilas());
+                int columna = tablero.getColumnas() - 1;
+                if (tablero.isEmpty(filaAleatoria, columna)) {
+                    Zombi zombi = chooseZombi();
+                    tablero.agregarZombi(zombi, filaAleatoria, columna);
+                    plantsVsZombiesGUI.actualizarCeldaZombi(filaAleatoria, columna, zombi);
+                    zombiAgregado = true;
+                }
+            }
+            actualizarEstado();
+        }, 0, 10, TimeUnit.SECONDS);
+
+        scheduler.scheduleAtFixedRate(this::actualizarEstado, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public Zombi chooseZombi(){
+        Random random = new Random();
+        int tipoZombi = random.nextInt(3);
+
+        Zombi zombiSeleccionado;
+
+        switch (tipoZombi) {
+            case 0:
+                zombiSeleccionado = new Basico();
+                break;
+            case 1:
+                zombiSeleccionado = new Cono();
+                break;
+            case 2:
+                zombiSeleccionado = new Cubeta();
+                break;
+            default:
+                throw new IllegalStateException("Error Interno.");
+        }
+        return zombiSeleccionado;
     }
 
     public void iniciarAccionPlanta(Planta planta) {
@@ -36,26 +95,6 @@ public class Juego {
         return false;
     }
 
-    private void configurarZombiesPorDificultad(String dificultad) {
-        switch (dificultad) {
-            case "Fácil":
-                // Configuración para nivel fácil
-                break;
-            case "Medio":
-                // Configuración para nivel medio
-                break;
-            case "Difícil":
-                // Configuración para nivel difícil
-                break;
-        }
-    }
-
-    public void iniciarAparicionDeZombis() {
-        scheduler.scheduleAtFixedRate(() -> {
-            Zombi nuevoZombi = new Zombi();
-            actualizarEstado();
-        }, 0, 10, TimeUnit.SECONDS);
-    }
 
     public void actualizarEstado() {
         System.out.println("Estado del juego actualizado.");

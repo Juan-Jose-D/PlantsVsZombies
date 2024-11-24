@@ -31,24 +31,24 @@ public class PlantsVsZombiesGUI extends JFrame {
         tituloLabel.setFont(new Font("Arial", Font.BOLD, 40));
         panelInicial.add(tituloLabel, BorderLayout.NORTH);
 
-        JPanel dificultadPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-        dificultadPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+        JPanel modoPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        modoPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
 
-        String[] nivelesDificultad = {"Fácil", "Medio", "Difícil"};
-        for (String nivel : nivelesDificultad) {
-            JButton botonNivel = new JButton(nivel);
+        String[] modos = {"PvM", "MvM", "PvP"};
+        for (String modo : modos) {
+            JButton botonNivel = new JButton(modo);
             botonNivel.setFont(new Font("Arial", Font.PLAIN, 20));
-            botonNivel.addActionListener(e -> iniciarJuego(nivel));
-            dificultadPanel.add(botonNivel);
+            botonNivel.addActionListener(e -> iniciarJuego(modo));
+            modoPanel.add(botonNivel);
         }
 
-        panelInicial.add(dificultadPanel, BorderLayout.CENTER);
+        panelInicial.add(modoPanel, BorderLayout.CENTER);
         setContentPane(panelInicial);
     }
 
-    private void iniciarJuego(String dificultad) {
+    private void iniciarJuego(String modo) {
         this.juego = new Juego(this);
-        juego.iniciarJuego(dificultad);
+        juego.iniciarJuego(modo);
 
         JPanel panelPrincipal = new JPanel(new BorderLayout());
 
@@ -185,7 +185,7 @@ public class PlantsVsZombiesGUI extends JFrame {
     private void accionColocarPlanta(JButton celdaBoton, int fila, int columna) {
         celdaBoton.addActionListener(e -> {
             if (plantaSeleccionada != null) {
-                // Si no hay planta en la celda, colocar una nueva
+
                 if (juego.getTablero().isEmpty(fila, columna)) {
                     Planta planta = crearPlantaSegunSeleccion();
                     if (planta != null && juego.colocarPlanta(planta, fila, columna)) {
@@ -245,11 +245,19 @@ public class PlantsVsZombiesGUI extends JFrame {
         celdaBoton.setText("");
     }
 
+    public void actualizarCeldaZombi(int fila, int columna, Zombi zombi) {
+        if (botonesTablero != null && botonesTablero[fila][columna] != null) {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon icon = new ImageIcon(zombi.getImagePath());
+                Image scaledImage = icon.getImage().getScaledInstance(40, 60, Image.SCALE_SMOOTH);
+                botonesTablero[fila][columna].setIcon(new ImageIcon(scaledImage));
+            });
+        }
+    }
 
     public void actualizarSoles() {
         solesLabel.setText("Soles: " + juego.getSoles());
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(PlantsVsZombiesGUI::new);
