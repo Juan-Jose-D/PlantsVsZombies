@@ -1,8 +1,13 @@
 package domain;
 
-public class Planta {
+import presentation.PlantsVsZombiesGUI;
+
+import java.util.concurrent.ScheduledExecutorService;
+
+public abstract class Planta {
     protected int costo;
     protected int vida;
+    protected String nombre;
 
     public Planta(int costo, int vida) {
         this.costo = costo;
@@ -16,4 +21,11 @@ public class Planta {
     public int getCosto() {
         return costo;
     }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public abstract void iniciarAcciones(ScheduledExecutorService scheduler, PlantsVsZombiesGUI gui, Tablero tablero);
+
 }

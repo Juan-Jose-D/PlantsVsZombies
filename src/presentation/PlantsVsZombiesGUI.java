@@ -10,23 +10,13 @@ public class PlantsVsZombiesGUI extends JFrame {
     private JPanel gridPanel;
     private JLabel solesLabel;
     private JButton plantaSeleccionada;
-    private String dificultad;
+    private JButton[][] botonesTablero;
 
-    public PlantsVsZombiesGUI(Juego juego) {
-        if (juego.getTablero() == null) {
-            Tablero tablero = new Tablero(5, 8);
-            juego.setTablero(tablero);
-        }
+    public PlantsVsZombiesGUI() {
 
-        this.juego = juego;
         setTitle("Plantas vs Zombies");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        prepareElements();
-        prepareGameElements();
-        prepareActions();
-
         setSize(800, 600);
         setLocationRelativeTo(null);
 
@@ -53,58 +43,26 @@ public class PlantsVsZombiesGUI extends JFrame {
         }
 
         panelInicial.add(dificultadPanel, BorderLayout.CENTER);
-
-        // Limpiar el frame y mostrar la pantalla inicial
-        getContentPane().removeAll();
-        getContentPane().add(panelInicial);
-        revalidate();
-        repaint();
+        setContentPane(panelInicial);
     }
 
     private void iniciarJuego(String dificultad) {
-        this.dificultad = dificultad;
+        this.juego = new Juego(this);
+        juego.iniciarJuego(dificultad);
 
-        juego = new Juego();
-        Tablero tablero = new Tablero(5, 8);
-        juego.setTablero(tablero);
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
 
-        configurarZombiesPorDificultad(dificultad);
+        prepareTopPanel(panelPrincipal);
+        prepareGridPanel(panelPrincipal);
+        prepareBottomPanel(panelPrincipal);
 
-        getContentPane().removeAll();
-        setLayout(new BorderLayout());
-
-        prepareElements();
-        prepareGameElements();
-        prepareActions();
-
+        setContentPane(panelPrincipal);
         revalidate();
         repaint();
     }
 
-    private void configurarZombiesPorDificultad(String dificultad) {
-        switch (dificultad) {
-            case "Fácil":
-                // Menos zombies, zombies más lentos
 
-                break;
-            case "Medio":
-                // Cantidad normal de zombies
-
-                break;
-            case "Difícil":
-                // Más zombies, zombies más rápidos y fuertes
-
-                break;
-        }
-    }
-
-    private void prepareElements() {
-        prepareTopPanel();
-        prepareGridPanel();
-        prepareBottomPanel();
-    }
-
-    private void prepareTopPanel() {
+    private void prepareTopPanel(JPanel panelPrincipal) {
         JPanel topPanel = new JPanel(new BorderLayout());
 
         JPanel solesPanel = new JPanel();
@@ -117,7 +75,15 @@ public class PlantsVsZombiesGUI extends JFrame {
 
         topPanel.add(solesPanel, BorderLayout.WEST);
         topPanel.add(plantasPanel, BorderLayout.CENTER);
-        add(topPanel, BorderLayout.NORTH);
+        panelPrincipal.add(topPanel, BorderLayout.NORTH);
+    }
+
+    private void prepareGridPanel(JPanel panelPrincipal) {
+        gridPanel = new JPanel();
+        gridPanel.setLayout(new GridLayout(juego.getTablero().getFilas(), juego.getTablero().getColumnas()));
+        gridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        inicializarTablero();
+        panelPrincipal.add(gridPanel, BorderLayout.CENTER);
     }
 
     private JPanel preparePlantasPanel() {
@@ -161,38 +127,14 @@ public class PlantsVsZombiesGUI extends JFrame {
             plantaSeleccionada = plantaButton;
             plantaButton.setBackground(new Color(150, 255, 150));
 
-            preparePlantsActions(planta);
         });
 
         return plantaButton;
     }
 
-    private void preparePlantsActions(String plantaTexto) {
-        switch (plantaTexto) {
-            case "🌻 Girasol (50)":
-                System.out.println("Girasol seleccionado - Genera soles adicionales");
-                break;
-            case "🌱 Lanzaguisantes (100)":
-                System.out.println("Lanzaguisantes seleccionado - Dispara guisantes");
-                break;
-            case "🌵 Cactus (175)":
-                System.out.println("Cactus seleccionado - Ataca en todas direcciones");
-                break;
-            case "🍄 Seta (125)":
-                System.out.println("Seta seleccionada - Envenena zombis");
-                break;
-        }
-    }
 
-    private void prepareGridPanel() {
-        gridPanel = new JPanel();
-        gridPanel.setLayout(new GridLayout(juego.getTablero().getFilas(), juego.getTablero().getColumnas()));
-        gridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        inicializarTablero();
-        add(gridPanel, BorderLayout.CENTER);
-    }
 
-    private void prepareBottomPanel() {
+    private void prepareBottomPanel(JPanel panelPrincipal) {
         JPanel bottomPanel = new JPanel();
 
         JButton agregarSolesButton = new JButton("Agregar Soles");
@@ -202,7 +144,6 @@ public class PlantsVsZombiesGUI extends JFrame {
             juego.agregarSoles(25);
             actualizarSoles();
         });
-
 
         JButton finalizarJuegoButton = new JButton("Finalizar Juego");
         finalizarJuegoButton.setBackground(new Color(255, 186, 186));
@@ -215,14 +156,16 @@ public class PlantsVsZombiesGUI extends JFrame {
 
         bottomPanel.add(agregarSolesButton);
         bottomPanel.add(finalizarJuegoButton);
-        add(bottomPanel, BorderLayout.SOUTH);
+        panelPrincipal.add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private void inicializarTablero() {
         Tablero tablero = juego.getTablero();
+        botonesTablero = new JButton[tablero.getFilas()][tablero.getColumnas()];
         for (int i = 0; i < tablero.getFilas(); i++) {
             for (int j = 0; j < tablero.getColumnas(); j++) {
                 JButton celdaBoton = crearBotonCelda(i, j);
+                botonesTablero[i][j] = celdaBoton;
                 gridPanel.add(celdaBoton);
             }
         }
@@ -232,7 +175,8 @@ public class PlantsVsZombiesGUI extends JFrame {
         JButton celdaBoton = new JButton();
         celdaBoton.setPreferredSize(new Dimension(60, 60));
 
-        actualizarCelda(celdaBoton, fila, columna);
+        celdaBoton.setBackground(new Color(240, 240, 240));
+        celdaBoton.setFocusPainted(false);
         accionColocarPlanta(celdaBoton, fila, columna);
 
         return celdaBoton;
@@ -241,14 +185,46 @@ public class PlantsVsZombiesGUI extends JFrame {
     private void accionColocarPlanta(JButton celdaBoton, int fila, int columna) {
         celdaBoton.addActionListener(e -> {
             if (plantaSeleccionada != null) {
-                Planta planta = crearPlantaSegunSeleccion();
-
-                if (planta != null && juego.colocarPlanta(planta, fila, columna)) {
-                    actualizarIconoPlanta(celdaBoton);
-                    actualizarSoles();
+                // Si no hay planta en la celda, colocar una nueva
+                if (juego.getTablero().isEmpty(fila, columna)) {
+                    Planta planta = crearPlantaSegunSeleccion();
+                    if (planta != null && juego.colocarPlanta(planta, fila, columna)) {
+                        actualizarIconoPlanta(celdaBoton);
+                        actualizarSoles();
+                        if (planta instanceof Girasol) {
+                            ((Girasol) planta).setPosition(fila, columna);
+                        }
+                        juego.iniciarAccionPlanta(planta);
+                    }
+                }
+                // Si hay un girasol y está iluminado, recolectar los soles
+                else if (juego.getTablero().getPlanta(fila, columna) instanceof Girasol) {
+                    Girasol girasol = (Girasol) juego.getTablero().getPlanta(fila, columna);
+                    if (girasol.tieneSolDisponible()) {
+                        girasol.recolectarSol();
+                        restaurarCeldaGirasol(fila, columna);
+                        actualizarSoles();
+                    }
                 }
             }
         });
+    }
+
+    public void iluminarCeldaGirasol(int fila, int columna) {
+        if (botonesTablero != null && botonesTablero[fila][columna] != null) {
+            SwingUtilities.invokeLater(() -> {
+                botonesTablero[fila][columna].setBackground(new Color(255, 255, 0));
+            });
+        }
+    }
+
+    // Método para restaurar el color normal de una celda
+    public void restaurarCeldaGirasol(int fila, int columna) {
+        if (botonesTablero != null && botonesTablero[fila][columna] != null) {
+            SwingUtilities.invokeLater(() -> {
+                botonesTablero[fila][columna].setBackground(new Color(240, 240, 240));
+            });
+        }
     }
 
     private Planta crearPlantaSegunSeleccion() {
@@ -257,7 +233,7 @@ public class PlantsVsZombiesGUI extends JFrame {
         } else if (plantaSeleccionada.getText().equals("Nuez")) {
             return new Nuez();
         } else if (plantaSeleccionada.getText().equals("Girasol")) {
-            return new Girasol();
+            return new Girasol(juego);
         }
         return null;
     }
@@ -270,36 +246,11 @@ public class PlantsVsZombiesGUI extends JFrame {
         celdaBoton.setText("");
     }
 
-    private void actualizarCelda(JButton boton, int fila, int columna) {
-        Celda celda = juego.getTablero().getCelda(fila, columna);
-        if (celda.getContenido() instanceof Planta) {
-            boton.setText("🌱");
-            boton.setBackground(new Color(200, 255, 200));
-        } else if (celda.getContenido() instanceof Zombi) {
-            boton.setText("🧟");
-            boton.setBackground(new Color(255, 200, 200));
-        } else {
-            boton.setText("");
-            boton.setBackground(new Color(240, 240, 240));
-        }
-        boton.setFocusPainted(false);
-    }
 
-    private void actualizarSoles() {
+    public void actualizarSoles() {
         solesLabel.setText("Soles: " + juego.getSoles());
     }
 
-    public void actualizarTablero() {
-        Component[] componentes = gridPanel.getComponents();
-        int index = 0;
-        Tablero tablero = juego.getTablero();
-        for (int i = 0; i < tablero.getFilas(); i++) {
-            for (int j = 0; j < tablero.getColumnas(); j++) {
-                JButton boton = (JButton) componentes[index++];
-                actualizarCelda(boton, i, j);
-            }
-        }
-    }
 
     private void prepareGameElements() {
     }
@@ -309,8 +260,6 @@ public class PlantsVsZombiesGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new PlantsVsZombiesGUI(new Juego());
-        });
+        SwingUtilities.invokeLater(PlantsVsZombiesGUI::new);
     }
 }

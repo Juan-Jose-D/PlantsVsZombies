@@ -18,11 +18,15 @@ public class Tablero {
     }
 
     public void agregarPlanta(Planta planta, int fila, int columna){
-
+        celdas[fila][columna].setContenido(planta);
     }
 
     public void agregarZombi(Zombi zombi, int fila, int columna){
+        celdas[fila][columna].setContenido(zombi);
+    }
 
+    public boolean isEmpty(int fila, int columna){
+        return celdas[fila][columna].getContenido() == null;
     }
 
     public Celda getCelda(int fila, int columna) {
@@ -35,5 +39,9 @@ public class Tablero {
 
     public int getColumnas() {
         return columnas;
+    }
+
+    public Object getPlanta(int fila, int columna) {
+        return celdas[fila][columna].getContenido();
     }
 }
