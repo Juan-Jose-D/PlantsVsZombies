@@ -197,7 +197,7 @@ public class PlantsVsZombiesGUI extends JFrame {
                         juego.iniciarAccionPlanta(planta);
                     }
                 }
-                // Si hay un girasol y está iluminado, recolectar los soles
+
                 else if (juego.getTablero().getPlanta(fila, columna) instanceof Girasol) {
                     Girasol girasol = (Girasol) juego.getTablero().getPlanta(fila, columna);
                     if (girasol.tieneSolDisponible()) {
@@ -218,7 +218,6 @@ public class PlantsVsZombiesGUI extends JFrame {
         }
     }
 
-    // Método para restaurar el color normal de una celda
     public void restaurarCeldaGirasol(int fila, int columna) {
         if (botonesTablero != null && botonesTablero[fila][columna] != null) {
             SwingUtilities.invokeLater(() -> {
@@ -251,13 +250,6 @@ public class PlantsVsZombiesGUI extends JFrame {
         solesLabel.setText("Soles: " + juego.getSoles());
     }
 
-
-    private void prepareGameElements() {
-    }
-
-    private void prepareActions() {
-        // Puedes agregar métodos relacionados con eventos o acciones del juego aquí.
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(PlantsVsZombiesGUI::new);
