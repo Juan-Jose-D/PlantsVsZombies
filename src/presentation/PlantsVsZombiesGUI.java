@@ -34,10 +34,10 @@ public class PlantsVsZombiesGUI extends JFrame {
         JPanel modoPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         modoPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
 
-        String[] modos = {"PvM", "MvM", "PvP"};
+        String[] modos = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
         for (String modo : modos) {
             JButton botonNivel = new JButton(modo);
-            botonNivel.setFont(new Font("Arial", Font.PLAIN, 20));
+            botonNivel.setFont(new Font("Arial", Font.PLAIN, 25));
             botonNivel.addActionListener(e -> iniciarJuego(modo));
             modoPanel.add(botonNivel);
         }
@@ -66,7 +66,7 @@ public class PlantsVsZombiesGUI extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
 
         JPanel solesPanel = new JPanel();
-        solesPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        solesPanel.setBorder(BorderFactory.createEmptyBorder(65, 15, 10, 15));
         solesLabel = new JLabel("Soles: " + juego.getSoles());
         solesLabel.setFont(new Font("Arial", Font.BOLD, 16));
         solesPanel.add(solesLabel);
@@ -81,7 +81,7 @@ public class PlantsVsZombiesGUI extends JFrame {
     private void prepareGridPanel(JPanel panelPrincipal) {
         gridPanel = new JPanel();
         gridPanel.setLayout(new GridLayout(juego.getTablero().getFilas(), juego.getTablero().getColumnas()));
-        gridPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        gridPanel.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 10));
         inicializarTablero();
         panelPrincipal.add(gridPanel, BorderLayout.CENTER);
     }
@@ -92,7 +92,7 @@ public class PlantsVsZombiesGUI extends JFrame {
         plantasPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         String[] plantas = {"Girasol", "Lanzaguisantes", "Nuez"};
-        String[] imagenes = {"D:\\POOB\\PlantsVsZombies\\src\\domain\\girasol.png", "D:\\POOB\\PlantsVsZombies\\src\\domain\\lanzaguisantes.png", "D:\\POOB\\PlantsVsZombies\\src\\domain\\nuez.png"};
+        String[] imagenes = {"src/domain/girasol.png", "src/domain/lanzaguisantes.png", "src/domain/nuez.png"};
 
         for (int i = 0; i < plantas.length; i++) {
             JButton plantaButton = createPlantaButton(plantas[i], imagenes[i]);
@@ -239,7 +239,7 @@ public class PlantsVsZombiesGUI extends JFrame {
 
     private void actualizarIconoPlanta(JButton celdaBoton) {
         String nombrePlanta = plantaSeleccionada.getText().toLowerCase();
-        ImageIcon icon = new ImageIcon("D:\\POOB\\PlantsVsZombies\\src\\domain\\" + nombrePlanta + ".png");
+        ImageIcon icon = new ImageIcon("src/domain/" + nombrePlanta + ".png");
         Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         celdaBoton.setIcon(new ImageIcon(image));
         celdaBoton.setText("");
@@ -257,6 +257,49 @@ public class PlantsVsZombiesGUI extends JFrame {
 
     public void actualizarSoles() {
         solesLabel.setText("Soles: " + juego.getSoles());
+    }
+
+
+    public void actualizarVista(Tablero tablero) {
+
+        for (int i = 0; i < tablero.getFilas(); i++) {
+            for (int j = 0; j < tablero.getColumnas(); j++) {
+                JButton boton = botonesTablero[i][j];
+                Object contenido = tablero.getCelda(i, j).getContenido();
+
+                SwingUtilities.invokeLater(() -> {
+
+                    boton.setIcon(null);
+                    boton.setBackground(new Color(240, 240, 240));
+
+                    if (contenido == null) {
+                        boton.setIcon(null);
+                    }
+
+                    else if (contenido instanceof Zombi) {
+                        Zombi zombi = (Zombi) contenido;
+                        ImageIcon icon = new ImageIcon(zombi.getImagePath());
+                        Image scaledImage = icon.getImage().getScaledInstance(40, 60, Image.SCALE_SMOOTH);
+                        boton.setIcon(new ImageIcon(scaledImage));
+                    }
+
+                    else if (contenido instanceof Planta) {
+                        Planta planta = (Planta) contenido;
+                        String nombrePlanta = planta.getNombre().toLowerCase();
+                        ImageIcon icon = new ImageIcon("src/domain/" + nombrePlanta + ".png");
+                        Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+                        boton.setIcon(new ImageIcon(scaledImage));
+
+                        if (planta instanceof Girasol) {
+                            Girasol girasol = (Girasol) planta;
+                            if (girasol.tieneSolDisponible()) {
+                                boton.setBackground(new Color(255, 255, 0));
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
 
     public static void main(String[] args) {

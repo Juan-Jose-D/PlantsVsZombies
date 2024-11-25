@@ -2,10 +2,13 @@ package domain;
 
 import presentation.PlantsVsZombiesGUI;
 
+import java.io.ObjectStreamException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Juego {
     private PlantsVsZombiesGUI plantsVsZombiesGUI;
@@ -26,14 +29,14 @@ public class Juego {
 
     public void configurarSegunModo(String modo){
         switch (modo){
-            case "PvM":
+            case "Player Vs Machine":
                 playerVsMachine();
                 break;
 
-            case "MvM":
+            case "Machine Vs Machine":
                 break;
 
-            case "PvP":
+            case "Player Vs Player":
                 break;
             default:
         }
@@ -47,6 +50,7 @@ public class Juego {
             for (int intentos = 0; intentos < 10 && !zombiAgregado; intentos++) {
                 int filaAleatoria = random.nextInt(tablero.getFilas());
                 int columna = tablero.getColumnas() - 1;
+
                 if (tablero.isEmpty(filaAleatoria, columna)) {
                     Zombi zombi = chooseZombi();
                     tablero.agregarZombi(zombi, filaAleatoria, columna);
@@ -54,9 +58,9 @@ public class Juego {
                     zombiAgregado = true;
                 }
             }
-            actualizarEstado();
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 5, TimeUnit.SECONDS);
 
+        scheduler.scheduleAtFixedRate(this::moverZombi, 2, 2, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(this::actualizarEstado, 0, 1, TimeUnit.SECONDS);
     }
 
@@ -95,11 +99,45 @@ public class Juego {
         return false;
     }
 
+    public void moverZombi() {
+        List<int[]> movimientos = new ArrayList<>();
+
+        for (int fila = 0; fila < tablero.getFilas(); fila++) {
+            for (int columna = tablero.getColumnas() - 1; columna >= 0; columna--) {
+                Object contenido = tablero.getZombi(fila, columna);
+
+                if (contenido instanceof Zombi) {
+                    int nuevaColumna = columna - 1;
+
+                    if (nuevaColumna < 0) {
+                        System.out.println("Fin del juego");
+                        finish();
+                        return;
+                    }
+
+                    if (tablero.isEmpty(fila, nuevaColumna)) {
+                        movimientos.add(new int[]{fila, columna, nuevaColumna});
+                    }
+                }
+            }
+        }
+
+        for (int[] movimiento : movimientos) {
+            int fila = movimiento[0];
+            int columna = movimiento[1];
+            int nuevaColumna = movimiento[2];
+
+            Zombi zombi = (Zombi) tablero.getZombi(fila, columna);
+            plantsVsZombiesGUI.actualizarCeldaZombi(fila, nuevaColumna, zombi);
+            tablero.moverZombi(fila, columna, nuevaColumna);
+            plantsVsZombiesGUI.actualizarVista(tablero);
+        }
+    }
 
     public void actualizarEstado() {
-        System.out.println("Estado del juego actualizado.");
-        // Aquí podrías manejar colisiones, mover zombis, etc.
+        plantsVsZombiesGUI.actualizarVista(tablero);
     }
+
 
     public void finish() {
         if (scheduler != null && !scheduler.isShutdown()) {

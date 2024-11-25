@@ -17,6 +17,12 @@ public class Tablero {
         }
     }
 
+    public void moverZombi(int fila, int columna, int nuevaColumna){
+        Object zombi = getZombi(fila, columna);
+        celdas[fila][nuevaColumna].setContenido(zombi);
+        celdas[fila][columna].setContenido(null);
+    }
+
     public void agregarPlanta(Planta planta, int fila, int columna){
         celdas[fila][columna].setContenido(planta);
     }
@@ -44,4 +50,9 @@ public class Tablero {
     public Object getPlanta(int fila, int columna) {
         return celdas[fila][columna].getContenido();
     }
+
+    public Object getZombi(int fila, int columna) {
+        return celdas[fila][columna].getContenido();
+    }
+
 }
