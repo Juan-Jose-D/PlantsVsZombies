@@ -120,6 +120,7 @@ public class Juego {
                     }
                 }
             }
+            ataqueZombi();
         }
 
         for (int[] movimiento : movimientos) {
@@ -133,6 +134,36 @@ public class Juego {
             plantsVsZombiesGUI.actualizarVista(tablero);
         }
     }
+
+    public void ataqueZombi() {
+        for (int fila = 0; fila < tablero.getFilas(); fila++) {
+            for (int columna = tablero.getColumnas() - 1; columna >= 0; columna--) {
+                Object contenido = tablero.getZombi(fila, columna);
+
+                if (contenido instanceof Zombi) {
+                    Zombi zombi = (Zombi) contenido;
+
+                    int nuevaColumna = columna - 1;
+
+                    if (nuevaColumna >= 0) {
+                        Object planta = tablero.getPlanta(fila, nuevaColumna);
+
+                        if (planta instanceof Planta) {
+                            Planta plantaObjetivo = (Planta) planta;
+
+                            plantaObjetivo.recibirDaño(zombi.getDaño());
+
+                            if (plantaObjetivo.getVida() <= 0) {
+                                plantaObjetivo.morir(fila, nuevaColumna, tablero, plantsVsZombiesGUI);
+                                plantsVsZombiesGUI.actualizarVista(tablero);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     public void actualizarEstado() {
         plantsVsZombiesGUI.actualizarVista(tablero);

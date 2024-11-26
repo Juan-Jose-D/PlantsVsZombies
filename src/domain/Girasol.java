@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import presentation.PlantsVsZombiesGUI;
 
 public class Girasol extends Planta {
-    private static final int FRECUENCIA_GENERACION = 20;
+    private static final int FRECUENCIA_GENERACION = 3;
     private static final int SOLES_GENERADOS = 25;
 
     private Juego juego;

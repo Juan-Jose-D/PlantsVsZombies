@@ -1,7 +1,7 @@
 package domain;
 
 public class Celda {
-    private Object contenido; // Puede ser una Planta, un Zombi o null
+    private Object contenido;
 
     public Object getContenido() {
         return contenido;

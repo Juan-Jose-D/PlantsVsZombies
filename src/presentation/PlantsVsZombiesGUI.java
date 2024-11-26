@@ -61,7 +61,6 @@ public class PlantsVsZombiesGUI extends JFrame {
         repaint();
     }
 
-
     private void prepareTopPanel(JPanel panelPrincipal) {
         JPanel topPanel = new JPanel(new BorderLayout());
 

@@ -16,11 +16,9 @@ public abstract class Planta {
 
     public void morir(int fila, int columna, Tablero tablero, PlantsVsZombiesGUI gui) {
         tablero.getCelda(fila, columna).setContenido(null);
-
         if (this instanceof Girasol) {
             gui.restaurarCeldaGirasol(fila, columna);
         }
-
         gui.actualizarVista(tablero);
     }
 

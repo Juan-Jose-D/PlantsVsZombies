@@ -1,5 +1,7 @@
 package domain;
 
+import presentation.PlantsVsZombiesGUI;
+
 public abstract class Zombi {
 
     protected int vida;
@@ -25,11 +27,12 @@ public abstract class Zombi {
 
     }
 
-    public void avanzar(){
+    public void morir(){
 
     }
 
-    public void morir(){
-
+    public void morir(int fila, int columna, Tablero tablero, PlantsVsZombiesGUI gui) {
+        tablero.getCelda(fila, columna).setContenido(null);
+        gui.actualizarVista(tablero);
     }
 }
