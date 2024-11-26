@@ -17,14 +17,14 @@ public abstract class Planta {
     public void morir(int fila, int columna, Tablero tablero, PlantsVsZombiesGUI gui) {
         tablero.getCelda(fila, columna).setContenido(null);
 
-        // Si la planta es un girasol, asegurarnos de restaurar el color de la celda
         if (this instanceof Girasol) {
             gui.restaurarCeldaGirasol(fila, columna);
         }
 
-        // Actualizar la vista del tablero
         gui.actualizarVista(tablero);
     }
+
+    public abstract String getImagePath();
 
     public int getCosto() {
         return costo;

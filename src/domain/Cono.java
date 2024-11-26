@@ -1,5 +1,8 @@
 package domain;
 
+import java.io.File;
+import java.net.URL;
+
 public class Cono extends Zombi{
 
     public Cono(){
@@ -7,6 +10,6 @@ public class Cono extends Zombi{
     }
 
     public String getImagePath() {
-        return "D:\\POOB\\PlantsVsZombies\\src\\domain\\conehead.png";
+        return "src/resources/images/conehead.png";
     }
 }

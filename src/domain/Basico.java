@@ -1,5 +1,8 @@
 package domain;
 
+import java.io.File;
+import java.net.URL;
+
 public class Basico extends Zombi{
 
 
@@ -8,6 +11,6 @@ public class Basico extends Zombi{
     }
 
     public String getImagePath() {
-        return "D:\\POOB\\PlantsVsZombies\\src\\domain\\basic.png";
+        return "src/resources/images/basic.png";
     }
 }

@@ -1,9 +1,10 @@
 package domain;
 
-import presentation.PlantsVsZombiesGUI;
-
+import java.io.File;
+import java.net.URL;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import presentation.PlantsVsZombiesGUI;
 
 public class Girasol extends Planta {
     private static final int FRECUENCIA_GENERACION = 20;
@@ -50,4 +51,11 @@ public class Girasol extends Planta {
     public String getNombre() {
         return "girasol";
     }
+
+    public String getImagePath() {
+        return "src/resources/images/girasol.png";
+    }
+
+
+
 }

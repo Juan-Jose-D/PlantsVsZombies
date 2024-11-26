@@ -91,31 +91,24 @@ public class PlantsVsZombiesGUI extends JFrame {
         plantasPanel.setBorder(BorderFactory.createTitledBorder("Plantas Disponibles"));
         plantasPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        String[] plantas = {"Girasol", "Lanzaguisantes", "Nuez"};
-        String[] imagenes = {"src/domain/girasol.png", "src/domain/lanzaguisantes.png", "src/domain/nuez.png"};
+        Planta[] plantasDisponibles = {new Girasol(juego), new Lanzaguisantes(juego), new Nuez(juego)};
 
-        for (int i = 0; i < plantas.length; i++) {
-            JButton plantaButton = createPlantaButton(plantas[i], imagenes[i]);
+        for (Planta planta : plantasDisponibles) {
+            JButton plantaButton = createPlantaButton(planta);
             plantasPanel.add(plantaButton);
         }
+
         return plantasPanel;
     }
 
-    private JButton createPlantaButton(String planta, String rutaImagen) {
-        JButton plantaButton = new JButton(planta);
+    private JButton createPlantaButton(Planta planta) {
+        JButton plantaButton = new JButton(planta.getClass().getSimpleName()); // Nombre de la planta
         plantaButton.setPreferredSize(new Dimension(100, 100));
         plantaButton.setBackground(new Color(220, 255, 220));
         plantaButton.setFocusPainted(false);
 
-        ImageIcon icon = new ImageIcon(rutaImagen);
-        if (icon.getIconWidth() == -1) {
-            System.err.println("No se pudo cargar la imagen: " + rutaImagen);
-        } else {
-
-            Image image = icon.getImage();
-            Image newImage = image.getScaledInstance(37, 40, Image.SCALE_SMOOTH);
-            plantaButton.setIcon(new ImageIcon(newImage));
-        }
+        ImageIcon icono = cargarImagen(planta.getImagePath(), 37, 40);
+        plantaButton.setIcon(icono);
 
         plantaButton.setHorizontalTextPosition(SwingConstants.CENTER);
         plantaButton.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -126,12 +119,10 @@ public class PlantsVsZombiesGUI extends JFrame {
             }
             plantaSeleccionada = plantaButton;
             plantaButton.setBackground(new Color(150, 255, 150));
-
         });
 
         return plantaButton;
     }
-
 
 
     private void prepareBottomPanel(JPanel panelPrincipal) {
@@ -189,7 +180,7 @@ public class PlantsVsZombiesGUI extends JFrame {
                 if (juego.getTablero().isEmpty(fila, columna)) {
                     Planta planta = crearPlantaSegunSeleccion();
                     if (planta != null && juego.colocarPlanta(planta, fila, columna)) {
-                        actualizarIconoPlanta(celdaBoton);
+                        actualizarIconoPlanta(celdaBoton, planta);
                         actualizarSoles();
                         if (planta instanceof Girasol) {
                             ((Girasol) planta).setPosition(fila, columna);
@@ -228,29 +219,26 @@ public class PlantsVsZombiesGUI extends JFrame {
 
     private Planta crearPlantaSegunSeleccion() {
         if (plantaSeleccionada.getText().equals("Lanzaguisantes")) {
-            return new Lanzaguisantes();
+            return new Lanzaguisantes(juego);
         } else if (plantaSeleccionada.getText().equals("Nuez")) {
-            return new Nuez();
+            return new Nuez(juego);
         } else if (plantaSeleccionada.getText().equals("Girasol")) {
             return new Girasol(juego);
         }
         return null;
     }
 
-    private void actualizarIconoPlanta(JButton celdaBoton) {
-        String nombrePlanta = plantaSeleccionada.getText().toLowerCase();
-        ImageIcon icon = new ImageIcon("src/domain/" + nombrePlanta + ".png");
-        Image image = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-        celdaBoton.setIcon(new ImageIcon(image));
+    private void actualizarIconoPlanta(JButton celdaBoton, Planta planta) {
+        ImageIcon icon = cargarImagen(planta.getImagePath(), 60, 60);
+        celdaBoton.setIcon(icon);
         celdaBoton.setText("");
     }
 
     public void actualizarCeldaZombi(int fila, int columna, Zombi zombi) {
         if (botonesTablero != null && botonesTablero[fila][columna] != null) {
             SwingUtilities.invokeLater(() -> {
-                ImageIcon icon = new ImageIcon(zombi.getImagePath());
-                Image scaledImage = icon.getImage().getScaledInstance(40, 60, Image.SCALE_SMOOTH);
-                botonesTablero[fila][columna].setIcon(new ImageIcon(scaledImage));
+                ImageIcon icon = cargarImagen(zombi.getImagePath(), 40, 60);
+                botonesTablero[fila][columna].setIcon(icon);
             });
         }
     }
@@ -278,17 +266,14 @@ public class PlantsVsZombiesGUI extends JFrame {
 
                     else if (contenido instanceof Zombi) {
                         Zombi zombi = (Zombi) contenido;
-                        ImageIcon icon = new ImageIcon(zombi.getImagePath());
-                        Image scaledImage = icon.getImage().getScaledInstance(40, 60, Image.SCALE_SMOOTH);
-                        boton.setIcon(new ImageIcon(scaledImage));
+                        ImageIcon icon = cargarImagen(zombi.getImagePath(), 40, 60);
+                        boton.setIcon(icon);
                     }
 
                     else if (contenido instanceof Planta) {
                         Planta planta = (Planta) contenido;
-                        String nombrePlanta = planta.getNombre().toLowerCase();
-                        ImageIcon icon = new ImageIcon("src/domain/" + nombrePlanta + ".png");
-                        Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                        boton.setIcon(new ImageIcon(scaledImage));
+                        ImageIcon icon = cargarImagen(planta.getImagePath(), 60, 60);
+                            boton.setIcon(icon);
 
                         if (planta instanceof Girasol) {
                             Girasol girasol = (Girasol) planta;
@@ -300,6 +285,16 @@ public class PlantsVsZombiesGUI extends JFrame {
                 });
             }
         }
+    }
+
+    private ImageIcon cargarImagen(String rutaImagen, int ancho, int alto) {
+        ImageIcon icon = new ImageIcon(rutaImagen);
+        if (icon.getIconWidth() == -1) {
+            System.err.println("No se pudo cargar la imagen: " + rutaImagen);
+            return null;
+        }
+        Image image = icon.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
     }
 
     public static void main(String[] args) {

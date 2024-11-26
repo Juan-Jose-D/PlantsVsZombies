@@ -1,5 +1,8 @@
 package domain;
 
+import java.io.File;
+import java.net.URL;
+
 public class Cubeta extends Zombi{
 
     public Cubeta(){
@@ -7,6 +10,6 @@ public class Cubeta extends Zombi{
     }
 
     public String getImagePath() {
-        return "D:\\POOB\\PlantsVsZombies\\src\\domain\\buckethead.png";
+        return "src/resources/images/buckethead.png";
     }
 }
