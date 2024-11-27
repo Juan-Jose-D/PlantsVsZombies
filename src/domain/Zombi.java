@@ -23,12 +23,8 @@ public abstract class Zombi {
         return daño;
     }
 
-    public void atacar(){
-
-    }
-
-    public void morir(){
-
+    public int getVida(){
+        return vida;
     }
 
     public void morir(int fila, int columna, Tablero tablero, PlantsVsZombiesGUI gui) {

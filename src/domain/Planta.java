@@ -32,14 +32,12 @@ public abstract class Planta {
         return vida;
     }
 
+
     public void recibirDaño(int daño) {
         int nuevaVida = vida - daño;
         this.vida = nuevaVida;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
 
     public abstract void iniciarAcciones(ScheduledExecutorService scheduler, PlantsVsZombiesGUI gui, Tablero tablero);
 

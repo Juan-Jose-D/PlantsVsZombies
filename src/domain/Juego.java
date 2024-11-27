@@ -19,7 +19,7 @@ public class Juego {
     public Juego(PlantsVsZombiesGUI plantsVsZombiesGUI) {
         this.tablero = new Tablero(5, 8);
         this.plantsVsZombiesGUI = plantsVsZombiesGUI;
-        this.soles = 50;
+        this.soles = 5000;
         this.scheduler = Executors.newScheduledThreadPool(10);
     }
 
@@ -87,7 +87,13 @@ public class Juego {
     }
 
     public void iniciarAccionPlanta(Planta planta) {
-        planta.iniciarAcciones(scheduler, plantsVsZombiesGUI, tablero);
+        if(planta instanceof Lanzaguisantes){
+            int fila = tablero.getFilaObject(planta);
+            Lanzaguisantes lanzaguisantes = (Lanzaguisantes) planta;
+            lanzaguisantes.iniciarAcciones(scheduler, plantsVsZombiesGUI, tablero, fila);
+        } else {
+            planta.iniciarAcciones(scheduler, plantsVsZombiesGUI, tablero);
+        }
     }
 
     public boolean colocarPlanta(Planta planta, int fila, int columna) {
