@@ -299,4 +299,9 @@ public class PlantsVsZombiesGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(PlantsVsZombiesGUI::new);
     }
+
+
+    public void Alexa(){
+
+    }
 }
