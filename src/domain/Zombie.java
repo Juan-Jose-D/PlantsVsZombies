@@ -28,7 +28,7 @@ public abstract class Zombie {
     }
 
     public void die(int row, int column, Board board, PoobVsZombiesGUI gui) {
-        board.getElement(row, column).setContenido(null);
+        board.getElement(row, column).setContent(null);
         gui.updateView(board);
     }
 }

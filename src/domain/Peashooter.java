@@ -17,7 +17,7 @@ public class Peashooter extends Plant{
 
     public void attack(int row, PoobVsZombiesGUI gui, Board board) {
         for (int column = 0; column < board.getColumns(); column++){
-            if (board.getElement(row, column).getContenido() instanceof Zombie zombie){
+            if (board.getElement(row, column).getContent() instanceof Zombie zombie){
                 int DAMAGE = 20;
                 zombie.receiveDamage(DAMAGE);
                 if (zombie.getHealth() <= 0){

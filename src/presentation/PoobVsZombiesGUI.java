@@ -27,28 +27,33 @@ public class PoobVsZombiesGUI extends JFrame {
     private void showInitialPanel() {
         JPanel initialPanel = new JPanel(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Plants vs Zombies", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Poob vs Zombies", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 40));
         initialPanel.add(titleLabel, BorderLayout.NORTH);
 
-        JPanel modPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-        modPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
-
-        String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
-        for (String modo : mods) {
-            JButton levelButton = new JButton(modo);
-            levelButton.setFont(new Font("Arial", Font.PLAIN, 25));
-            levelButton.addActionListener(e -> startPoobVsZombies(modo));
-            modPanel.add(levelButton);
-        }
+        JPanel modPanel = getModPanel();
 
         initialPanel.add(modPanel, BorderLayout.CENTER);
         setContentPane(initialPanel);
     }
 
-    private void startPoobVsZombies(String modo) {
+    private JPanel getModPanel() {
+        JPanel modPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        modPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+
+        String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
+        for (String mod : mods) {
+            JButton levelButton = new JButton(mod);
+            levelButton.setFont(new Font("Arial", Font.PLAIN, 25));
+            levelButton.addActionListener(e -> startPoobVsZombies(mod));
+            modPanel.add(levelButton);
+        }
+        return modPanel;
+    }
+
+    private void startPoobVsZombies(String mod) {
         this.game = new PoobVsZombies(this);
-        game.startPoobVsZombies(modo);
+        game.startPoobVsZombies(mod);
 
         JPanel principalPanel = new JPanel(new BorderLayout());
 
@@ -87,7 +92,7 @@ public class PoobVsZombiesGUI extends JFrame {
 
     private JPanel preparePlantsPanel() {
         JPanel plantsPanel = new JPanel();
-        plantsPanel.setBorder(BorderFactory.createTitledBorder("Plants Disponibles"));
+        plantsPanel.setBorder(BorderFactory.createTitledBorder("Plantas Disponibles"));
         plantsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         Plant[] availablePlants = {new Sunflower(game), new Peashooter(game), new WallNut(game)};
@@ -199,6 +204,8 @@ public class PoobVsZombiesGUI extends JFrame {
         });
     }
 
+
+
     public void iluminateElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
@@ -251,7 +258,7 @@ public class PoobVsZombiesGUI extends JFrame {
         for (int i = 0; i < board.getRows(); i++) {
             for (int j = 0; j < board.getColumns(); j++) {
                 JButton button = boardButtons[i][j];
-                Object content = board.getElement(i, j).getContenido();
+                Object content = board.getElement(i, j).getContent();
 
                 SwingUtilities.invokeLater(() -> {
 
@@ -274,6 +281,10 @@ public class PoobVsZombiesGUI extends JFrame {
                                 }
                             }
                         }
+                        case LawnMower lawnMower-> {
+                            ImageIcon icon = uploadImage(lawnMower.getImagePath(), 40, 60);
+                            button.setIcon(icon);
+                        }
                         default -> {
                         }
                     }
@@ -281,6 +292,7 @@ public class PoobVsZombiesGUI extends JFrame {
             }
         }
     }
+
 
     private ImageIcon uploadImage(String imagePath, int width, int height) {
         ImageIcon icon = new ImageIcon(imagePath);

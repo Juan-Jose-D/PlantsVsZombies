@@ -14,6 +14,7 @@ public class PoobVsZombies {
     private int suns;
     private final Board board;
     private final ScheduledExecutorService scheduler;
+    private List<LawnMower> lawnMowers;
 
     public PoobVsZombies(PoobVsZombiesGUI poobVsZombiesGUI) {
         this.board = new Board(5, 8);
@@ -22,12 +23,12 @@ public class PoobVsZombies {
         this.scheduler = Executors.newScheduledThreadPool(10);
     }
 
-    public void startPoobVsZombies(String modo) {
-        configureAccordMod(modo);
+    public void startPoobVsZombies(String mod) {
+        configureAccordMod(mod);
     }
 
-    public void configureAccordMod(String modo){
-        switch (modo){
+    public void configureAccordMod(String mod){
+        switch (mod){
             case "Player Vs Machine":
                 playerVsMachine();
                 break;
@@ -42,6 +43,7 @@ public class PoobVsZombies {
     }
 
     public void playerVsMachine() {
+        createLawnMowers();
         scheduler.scheduleAtFixedRate(() -> {
             Random random = new Random();
             boolean addedZombie = false;
@@ -75,6 +77,23 @@ public class PoobVsZombies {
         };
     }
 
+    public void createLawnMowers() {
+        lawnMowers = new ArrayList<>();
+        int rows = board.getRows();
+
+        for (int i = 0; i < rows; i++) {
+            LawnMower lawnMower = new LawnMower(i);
+            board.setElement(i, 0, lawnMower);
+            lawnMowers.add(lawnMower);
+        }
+    }
+
+    public void activateLawnMower(int row){
+        for (int col = 0; col < board.getColumns(); col++) {
+            board.eraseElement(row, col);
+        }
+    }
+
     public void startPlantAction(Plant plant) {
         if(plant instanceof Peashooter peashooter){
             int row = board.getRowObject(plant);
@@ -103,8 +122,12 @@ public class PoobVsZombies {
                 if (content instanceof Zombie) {
                     int newColumn = column - 1;
 
+                    if (newColumn == 1) {
+                        activateLawnMower(row);
+                    }
+
                     if (newColumn < 0) {
-                        System.out.println("Fin del game");
+                        System.out.println("Fin del juego");
                         finish();
                         return;
                     }
@@ -128,6 +151,7 @@ public class PoobVsZombies {
             poobVsZombiesGUI.updateView(board);
         }
     }
+
 
     public void zombieAttack() {
         for (int row = 0; row < board.getRows(); row++) {
