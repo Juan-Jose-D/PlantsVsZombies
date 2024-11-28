@@ -1,11 +1,8 @@
 package domain;
 
-import java.io.File;
-import java.net.URL;
+public class Conehead extends Zombie {
 
-public class Cono extends Zombi{
-
-    public Cono(){
+    public Conehead(){
         super(380, 100);
     }
 

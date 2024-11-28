@@ -1,11 +1,8 @@
 package domain;
 
-import java.io.File;
-import java.net.URL;
+public class Buckethead extends Zombie {
 
-public class Cubeta extends Zombi{
-
-    public Cubeta(){
+    public Buckethead(){
         super(800, 100);
     }
 

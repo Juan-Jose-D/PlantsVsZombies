@@ -1,12 +1,9 @@
 package domain;
 
-import java.io.File;
-import java.net.URL;
-
-public class Basico extends Zombi{
+public class Basic extends Zombie {
 
 
-    public Basico(){
+    public Basic(){
         super(100, 100);
     }
 
