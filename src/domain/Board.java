@@ -19,9 +19,9 @@ public class Board {
 
 
     public void moveZombie(int row, int column, int newColumn) {
-        Object zombi = getZombie(row, column);
-        if (zombi instanceof Zombie) {
-            elements[row][newColumn].setContent(zombi);
+        Object zombie = getZombie(row, column);
+        if (zombie instanceof Zombie) {
+            elements[row][newColumn].setContent(zombie);
             elements[row][column].setContent(null);
         }
     }

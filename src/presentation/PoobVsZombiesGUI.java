@@ -252,7 +252,6 @@ public class PoobVsZombiesGUI extends JFrame {
         sunLabel.setText("Soles: " + game.getSuns());
     }
 
-
     public void updateView(Board board) {
 
         for (int i = 0; i < board.getRows(); i++) {
@@ -280,10 +279,6 @@ public class PoobVsZombiesGUI extends JFrame {
                                     button.setBackground(new Color(255, 255, 0));
                                 }
                             }
-                        }
-                        case LawnMower lawnMower-> {
-                            ImageIcon icon = uploadImage(lawnMower.getImagePath(), 40, 60);
-                            button.setIcon(icon);
                         }
                         default -> {
                         }

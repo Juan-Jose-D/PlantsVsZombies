@@ -61,7 +61,7 @@ public class PoobVsZombies {
             }
         }, 0, 5, TimeUnit.SECONDS);
 
-        scheduler.scheduleAtFixedRate(this::moveZombie, 5, 5, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::moveZombie, 2, 2, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
@@ -121,7 +121,6 @@ public class PoobVsZombies {
 
                 if (content instanceof Zombie) {
                     int newColumn = column - 1;
-
                     if (newColumn == 1) {
                         activateLawnMower(row);
                     }
