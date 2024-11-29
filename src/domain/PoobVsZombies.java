@@ -17,7 +17,7 @@ public class PoobVsZombies {
     private List<LawnMower> lawnMowers;
 
     public PoobVsZombies(PoobVsZombiesGUI poobVsZombiesGUI) {
-        this.board = new Board(5, 8);
+        this.board = new Board(6, 10);
         this.poobVsZombiesGUI = poobVsZombiesGUI;
         this.suns = 5000;
         this.scheduler = Executors.newScheduledThreadPool(10);
@@ -88,9 +88,28 @@ public class PoobVsZombies {
         }
     }
 
-    public void activateLawnMower(int row){
-        for (int col = 0; col < board.getColumns(); col++) {
-            board.eraseElement(row, col);
+    public void activateLawnMower(int row) {
+        LawnMower lawnMower = null;
+        for (LawnMower mower : lawnMowers) {
+            if (mower.getRow() == row) {
+                lawnMower = mower;
+                break;
+            }
+        }
+        if (lawnMower != null && !lawnMower.isActivated()) {
+
+            lawnMower.activate();
+            lawnMowers.remove(lawnMower);
+            board.eraseElement(row, 0);
+
+            for (int col = 0; col < board.getColumns(); col++) {
+                Object content = board.getZombie(row, col);
+                if (content instanceof Zombie) {
+                    board.eraseElement(row, col);
+                }
+            }
+
+            poobVsZombiesGUI.updateView(board);
         }
     }
 
@@ -121,8 +140,20 @@ public class PoobVsZombies {
 
                 if (content instanceof Zombie) {
                     int newColumn = column - 1;
+
                     if (newColumn == 1) {
-                        activateLawnMower(row);
+                        boolean lawnMowerExists = false;
+                        for (LawnMower mower : lawnMowers) {
+                            if (mower.getRow() == row) {
+                                lawnMowerExists = true;
+                                break;
+                            }
+                        }
+
+                        if (lawnMowerExists) {
+                            activateLawnMower(row);
+                            return;
+                        }
                     }
 
                     if (newColumn < 0) {
