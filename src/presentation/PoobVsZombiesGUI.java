@@ -10,7 +10,9 @@ public class PoobVsZombiesGUI extends JFrame {
     private JPanel gridPanel;
     private JLabel sunLabel;
     private JButton selectedPlant;
+    private JButton shovelButton;
     private JButton[][] boardButtons;
+    private boolean isShovelActive = false;
 
     public PoobVsZombiesGUI() {
 
@@ -67,6 +69,40 @@ public class PoobVsZombiesGUI extends JFrame {
     }
 
     private void prepareTopPanel(JPanel principalPanel) {
+        JPanel topPanel = getBackgroundPanel();
+        topPanel.setLayout(new BorderLayout());
+
+        JPanel sunsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        sunsPanel.setOpaque(false);
+        sunsPanel.setBorder(BorderFactory.createEmptyBorder(85, 45, 10, 0));
+        sunLabel = new JLabel(String.valueOf(game.getSuns()));
+        sunLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        sunsPanel.add(sunLabel);
+
+        JPanel plantsPanel = preparePlantsPanel();
+        plantsPanel.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
+        plantsPanel.setOpaque(false);
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+        shovelButton = new JButton(new ImageIcon("src/resources/images/shovel.png"));
+        shovelButton.setPreferredSize(new Dimension(93, 120));
+        shovelButton.setFocusPainted(false);
+        shovelButton.setBorderPainted(false);
+
+        rightPanel.add(shovelButton);
+
+        topPanel.add(sunsPanel, BorderLayout.WEST);
+        topPanel.add(plantsPanel, BorderLayout.CENTER);
+        topPanel.add(rightPanel, BorderLayout.EAST);
+
+        principalPanel.add(topPanel, BorderLayout.NORTH);
+        shovelAction();
+    }
+
+
+
+    private JPanel getBackgroundPanel() {
         JPanel topPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -76,29 +112,9 @@ public class PoobVsZombiesGUI extends JFrame {
             }
         };
 
-        // Establecer un tamaño preferido para el topPanel
-        topPanel.setPreferredSize(new Dimension(600, 100));
+        topPanel.setPreferredSize(new Dimension(500, 120));
         topPanel.setLayout(null);
-
-        // Panel de soles
-        JPanel sunsPanel = new JPanel();
-        sunsPanel.setOpaque(false); // Hace transparente el fondo del panel
-        sunsPanel.setBounds(10, 70, 120, 50);
-        sunLabel = new JLabel(String.valueOf(game.getSuns()));
-        sunLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        sunsPanel.add(sunLabel);
-
-        // Panel de plantas
-        JPanel plantsPanel = preparePlantsPanel();
-        plantsPanel.setBounds(130, 10, 600, 90);
-        plantsPanel.setOpaque(false);
-
-        // Añadir paneles al topPanel
-        topPanel.add(sunsPanel);
-        topPanel.add(plantsPanel);
-
-        // Añadir topPanel al principalPanel
-        principalPanel.add(topPanel, BorderLayout.NORTH);
+        return topPanel;
     }
 
     private void prepareGridPanel(JPanel principalPanel) {
@@ -120,7 +136,7 @@ public class PoobVsZombiesGUI extends JFrame {
         JPanel plantsPanel = new JPanel();
         plantsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        Plant[] availablePlants = {new Sunflower(game), new Peashooter(game), new WallNut(game)};
+        Plant[] availablePlants = {new Sunflower(game), new Peashooter(game), new WallNut(game), new PotatoMine(game)};
 
         for (Plant plant : availablePlants) {
             JButton plantButton = createPlantButton(plant);
@@ -131,22 +147,22 @@ public class PoobVsZombiesGUI extends JFrame {
 
     private JButton createPlantButton(Plant plant) {
         JButton plantButton = new JButton(plant.getClass().getSimpleName());
-        plantButton.setPreferredSize(new Dimension(100, 100));
-        plantButton.setBackground(new Color(220, 255, 220));
+        plantButton.setPreferredSize(new Dimension(70, 90));
         plantButton.setFocusPainted(false);
+        plantButton.setBorderPainted(false);
+        plantButton.setContentAreaFilled(false);
 
-        ImageIcon icon = uploadImage(plant.getImagePath(), 37, 40);
-        plantButton.setIcon(icon);
-
-        plantButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        plantButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        ImageIcon cardImage = uploadImage(plant.getImageCardPath(), 75, 90);
+        if (cardImage != null) {
+            plantButton.setIcon(cardImage);
+        }
 
         plantButton.addActionListener(e -> {
             if (selectedPlant != null) {
-                selectedPlant.setBackground(new Color(220, 255, 220));
+                selectedPlant.setBorderPainted(false);
             }
             selectedPlant = plantButton;
-            plantButton.setBackground(new Color(150, 255, 150));
+            plantButton.setBorderPainted(true);
         });
 
         return plantButton;
@@ -194,13 +210,11 @@ public class PoobVsZombiesGUI extends JFrame {
         JButton elementButton = new JButton();
         elementButton.setPreferredSize(new Dimension(60, 60));
 
-        // Hacer que el botón sea transparente
         elementButton.setContentAreaFilled(false);
         elementButton.setOpaque(false);
-
+        elementButton.setBorderPainted(false);
         elementButton.setFocusPainted(false);
 
-        // Añadir acción al botón
         putPlantAction(elementButton, row, column);
 
         return elementButton;
@@ -208,7 +222,15 @@ public class PoobVsZombiesGUI extends JFrame {
 
     private void putPlantAction(JButton elementButton, int row, int column) {
         elementButton.addActionListener(e -> {
-            if (selectedPlant != null) {
+
+            if (isShovelActive) {
+                if (game.getBoard().getElement(row, column).getContent() instanceof Plant plant) {
+                    game.shovelAction(row, column);
+                    elementButton.setIcon(null);
+                    elementButton.setBackground(new Color(240, 240, 240));
+                    isShovelActive = false;
+                }
+            } else if (selectedPlant != null) {
 
                 if (game.getBoard().isEmpty(row, column)) {
                     Plant plant = createPlantAccordSelection();
@@ -234,6 +256,12 @@ public class PoobVsZombiesGUI extends JFrame {
     }
 
 
+    private void shovelAction() {
+        shovelButton.addActionListener(e -> {
+            isShovelActive = !isShovelActive;
+        });
+    }
+
 
     public void iluminateElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
@@ -252,18 +280,21 @@ public class PoobVsZombiesGUI extends JFrame {
     }
 
     private Plant createPlantAccordSelection() {
-        if (selectedPlant.getText().equals("Peashooter")) {
-            return new Peashooter(game);
-        } else if (selectedPlant.getText().equals("WallNut")) {
-            return new WallNut(game);
-        } else if (selectedPlant.getText().equals("Sunflower")) {
-            return new Sunflower(game);
+        if (selectedPlant != null) {
+            String plantName = selectedPlant.getText();
+            return switch (plantName) {
+                case "Sunflower" -> new Sunflower(game);
+                case "Peashooter" -> new Peashooter(game);
+                case "WallNut" -> new WallNut(game);
+                case "PotatoMine" -> new PotatoMine(game);
+                default -> null;
+            };
         }
         return null;
     }
 
     private void updateIconPlant(JButton elementButton, Plant plant) {
-        ImageIcon icon = uploadImage(plant.getImagePath(), 60, 60);
+        ImageIcon icon = new ImageIcon(plant.getImagePath());
         elementButton.setIcon(icon);
         elementButton.setText("");
     }
@@ -278,7 +309,7 @@ public class PoobVsZombiesGUI extends JFrame {
     }
 
     public void updateSuns() {
-        sunLabel.setText("Soles: " + game.getSuns());
+        sunLabel.setText(String.valueOf(game.getSuns()));
     }
 
     public void updateView(Board board) {

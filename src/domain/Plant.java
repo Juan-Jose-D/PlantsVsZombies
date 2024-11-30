@@ -24,6 +24,8 @@ public abstract class Plant {
 
     public abstract String getImagePath();
 
+    public abstract String getImageCardPath();
+
     public int getCost() {
         return cost;
     }

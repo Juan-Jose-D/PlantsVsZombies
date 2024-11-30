@@ -46,9 +46,10 @@ public class Sunflower extends Plant {
     
 
     public String getImagePath() {
-        return "src/resources/images/sunflower.png";
+        return "src/resources/images/sunflower.gif";
     }
 
-
-
+    public String getImageCardPath() {
+        return "src/resources/images/sunflowerCard.png";
+    }
 }

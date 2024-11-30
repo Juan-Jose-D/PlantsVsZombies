@@ -38,6 +38,10 @@ public class Peashooter extends Plant{
     }
 
     public String getImagePath() {
-        return "src/resources/images/peashooter.png";
+        return "src/resources/images/peashooter.gif";
+    }
+
+    public String getImageCardPath() {
+        return "src/resources/images/peashooterCard.png";
     }
 }

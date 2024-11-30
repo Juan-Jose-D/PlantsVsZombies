@@ -131,6 +131,12 @@ public class PoobVsZombies {
         return false;
     }
 
+    public void shovelAction(int row, int column){
+        if (board.getElement(row, column).getContent() instanceof Plant plant) {
+             board.eraseElement(row, column);
+        }
+    }
+
     public void moveZombie() {
         List<int[]> movements = new ArrayList<>();
 
