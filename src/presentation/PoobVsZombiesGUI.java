@@ -19,38 +19,59 @@ public class PoobVsZombiesGUI extends JFrame {
         setTitle("Plants vs Zombies");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(900, 700);
+        setSize(1650,1080);
         setLocationRelativeTo(null);
+
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         showInitialPanel();
         setVisible(true);
     }
 
     private void showInitialPanel() {
-        JPanel initialPanel = new JPanel(new BorderLayout());
+        JPanel initialPanel = getIntroBackground();
+        initialPanel.setLayout(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Poob vs Zombies", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 40));
-        initialPanel.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel modPanel = getModPanel();
-
-        initialPanel.add(modPanel, BorderLayout.CENTER);
-        setContentPane(initialPanel);
-    }
-
-    private JPanel getModPanel() {
-        JPanel modPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-        modPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+        JPanel modPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        modPanel.setOpaque(false);
 
         String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
-        for (String mod : mods) {
-            JButton levelButton = new JButton(mod);
-            levelButton.setFont(new Font("Arial", Font.PLAIN, 25));
-            levelButton.addActionListener(e -> startPoobVsZombies(mod));
+        for (String modo : mods) {
+            JButton levelButton = crearBotonPersonalizado(modo);
+            levelButton.addActionListener(e -> startPoobVsZombies(modo));
             modPanel.add(levelButton);
         }
-        return modPanel;
+
+        initialPanel.add(modPanel, BorderLayout.CENTER);
+
+        setContentPane(initialPanel);
+        revalidate();
+        repaint();
+    }
+
+    private JPanel getIntroBackground() {
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon backgroundImage = new ImageIcon("src/resources/images/intro.png");
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+
+        backgroundPanel.setPreferredSize(new Dimension(500, 120));
+        backgroundPanel.setLayout(null);
+        backgroundPanel.setBackground(new Color(0, 0, 0, 0)); // Completamente transparente
+        return backgroundPanel;
+    }
+
+    private JButton crearBotonPersonalizado(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.PLAIN, 18));
+        button.setPreferredSize(new Dimension(200, 50));
+        button.setBackground(new Color(173, 216, 230));
+        button.setFocusPainted(false);
+        return button;
     }
 
     private void startPoobVsZombies(String mod) {
@@ -74,13 +95,13 @@ public class PoobVsZombiesGUI extends JFrame {
 
         JPanel sunsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         sunsPanel.setOpaque(false);
-        sunsPanel.setBorder(BorderFactory.createEmptyBorder(85, 45, 10, 0));
+        sunsPanel.setBorder(BorderFactory.createEmptyBorder(85, 90, 10, 0));
         sunLabel = new JLabel(String.valueOf(game.getSuns()));
         sunLabel.setFont(new Font("Arial", Font.BOLD, 16));
         sunsPanel.add(sunLabel);
 
         JPanel plantsPanel = preparePlantsPanel();
-        plantsPanel.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
+        plantsPanel.setBorder(BorderFactory.createEmptyBorder(10, 80, 10, 10));
         plantsPanel.setOpaque(false);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -99,7 +120,6 @@ public class PoobVsZombiesGUI extends JFrame {
         principalPanel.add(topPanel, BorderLayout.NORTH);
         shovelAction();
     }
-
 
 
     private JPanel getBackgroundPanel() {
@@ -332,7 +352,7 @@ public class PoobVsZombiesGUI extends JFrame {
                             button.setIcon(icon);
                         }
                         case Plant plant -> {
-                            ImageIcon icon = uploadImage(plant.getImagePath(), 60, 60);
+                            ImageIcon icon = new ImageIcon(plant.getImagePath());
                             button.setIcon(icon);
 
                             if (plant instanceof Sunflower sunflower) {
