@@ -30,23 +30,41 @@ public class PoobVsZombiesGUI extends JFrame {
 
     private void showInitialPanel() {
         JPanel initialPanel = getIntroBackground();
-        initialPanel.setLayout(new BorderLayout());
+        initialPanel.setLayout(null); // Cambiar a null layout para posicionar manualmente
 
         JPanel modPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
         modPanel.setOpaque(false);
 
         String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
         for (String modo : mods) {
-            JButton levelButton = crearBotonPersonalizado(modo);
+            JButton levelButton = new JButton(modo);
+            levelButton.setFont(new Font("Rubik One", Font.PLAIN, 18));
+            levelButton.setPreferredSize(new Dimension(1650, 1080));
+            levelButton.setBackground(new Color(173, 216, 230));
+            levelButton.setFocusPainted(false);
             levelButton.addActionListener(e -> startPoobVsZombies(modo));
             modPanel.add(levelButton);
         }
-
-        initialPanel.add(modPanel, BorderLayout.CENTER);
-
+        initialPanel.add(modPanel);
+        JLabel imageLabel = getImageLabel();
+        imageLabel.setBounds(460, 500, 300, 100);
+        initialPanel.add(imageLabel);
         setContentPane(initialPanel);
         revalidate();
         repaint();
+    }
+
+    private JLabel getImageLabel() {
+        ImageIcon imageIcon = uploadImage("src/resources/images/play.png", 300, 100);
+        JLabel imageLabel = new JLabel(imageIcon);
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                showGameModeSelectionPanel();
+            }
+        });
+        return imageLabel;
     }
 
     private JPanel getIntroBackground() {
@@ -55,24 +73,53 @@ public class PoobVsZombiesGUI extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 ImageIcon backgroundImage = new ImageIcon("src/resources/images/intro.png");
-                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+                g.drawImage(backgroundImage.getImage(), 0,0, getWidth(), getHeight(), this);
             }
         };
-
         backgroundPanel.setPreferredSize(new Dimension(500, 120));
         backgroundPanel.setLayout(null);
-        backgroundPanel.setBackground(new Color(0, 0, 0, 0)); // Completamente transparente
+        backgroundPanel.setBackground(new Color(0, 0, 0, 0));
         return backgroundPanel;
     }
 
-    private JButton crearBotonPersonalizado(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.PLAIN, 18));
-        button.setPreferredSize(new Dimension(200, 50));
-        button.setBackground(new Color(173, 216, 230));
-        button.setFocusPainted(false);
-        return button;
+    private void showGameModeSelectionPanel() {
+        JPanel modeSelectionPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon backgroundImage = new ImageIcon("src/resources/images/modos.png");
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        modeSelectionPanel.setLayout(null);
+        modeSelectionPanel.setPreferredSize(new Dimension(1650, 1080));
+        String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
+        int yPosition = 260;
+        for (String modo : mods) {
+            JLabel modeLabel = new JLabel(modo);
+            modeLabel.setFont(new Font("CS Globe", Font.BOLD, 35));
+            modeLabel.setForeground(Color.WHITE);
+            modeLabel.setBounds(520, yPosition, 400, 50);
+            modeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            modeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    startPoobVsZombies(modo);
+                }
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    modeLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
+            });
+
+            modeSelectionPanel.add(modeLabel);
+            yPosition += 90;
+        }
+        setContentPane(modeSelectionPanel);
+        revalidate();
+        repaint();
     }
+
 
     private void startPoobVsZombies(String mod) {
         this.game = new PoobVsZombies(this);
@@ -384,7 +431,13 @@ public class PoobVsZombiesGUI extends JFrame {
         return new ImageIcon(image);
     }
 
+    private void saveGame() throws PoobVsZombiesException {
 
+    }
+
+    private void loadGame() throws PoobVsZombiesException {
+
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(PoobVsZombiesGUI::new);
