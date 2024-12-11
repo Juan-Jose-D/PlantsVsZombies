@@ -36,11 +36,6 @@ public abstract class Plant {
 
 
     public void receiveDamage(int damage) {
-        int newHealth = health - damage;
-        this.health = newHealth;
+        this.health = health - damage;
     }
-
-
-    public abstract void startActions(ScheduledExecutorService scheduler, PoobVsZombiesGUI gui, Board board);
-
 }

@@ -4,6 +4,10 @@ import domain.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PoobVsZombiesGUI extends JFrame {
     private PoobVsZombies game;
@@ -30,7 +34,7 @@ public class PoobVsZombiesGUI extends JFrame {
 
     private void showInitialPanel() {
         JPanel initialPanel = getIntroBackground();
-        initialPanel.setLayout(null); // Cambiar a null layout para posicionar manualmente
+        initialPanel.setLayout(null);
 
         JPanel modPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
         modPanel.setOpaque(false);
@@ -40,7 +44,6 @@ public class PoobVsZombiesGUI extends JFrame {
             JButton levelButton = new JButton(modo);
             levelButton.setFont(new Font("Rubik One", Font.PLAIN, 18));
             levelButton.setPreferredSize(new Dimension(1650, 1080));
-            levelButton.setBackground(new Color(173, 216, 230));
             levelButton.setFocusPainted(false);
             levelButton.addActionListener(e -> startPoobVsZombies(modo));
             modPanel.add(levelButton);
@@ -58,9 +61,9 @@ public class PoobVsZombiesGUI extends JFrame {
         ImageIcon imageIcon = uploadImage("src/resources/images/play.png", 300, 100);
         JLabel imageLabel = new JLabel(imageIcon);
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        imageLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 showGameModeSelectionPanel();
             }
         });
@@ -94,20 +97,20 @@ public class PoobVsZombiesGUI extends JFrame {
         modeSelectionPanel.setLayout(null);
         modeSelectionPanel.setPreferredSize(new Dimension(1650, 1080));
         String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
-        int yPosition = 260;
+        int yPosition = 210;
         for (String modo : mods) {
             JLabel modeLabel = new JLabel(modo);
             modeLabel.setFont(new Font("CS Globe", Font.BOLD, 35));
             modeLabel.setForeground(Color.WHITE);
-            modeLabel.setBounds(520, yPosition, 400, 50);
+            modeLabel.setBounds(490, yPosition, 400, 50);
             modeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            modeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            modeLabel.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                public void mouseClicked(MouseEvent evt) {
                     startPoobVsZombies(modo);
                 }
                 @Override
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                public void mouseEntered(MouseEvent evt) {
                     modeLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
             });
@@ -240,7 +243,6 @@ public class PoobVsZombiesGUI extends JFrame {
         JPanel bottomPanel = new JPanel();
 
         JButton addSunsButton = new JButton("Agregar Soles");
-        addSunsButton.setBackground(new Color(255, 223, 186));
         addSunsButton.setFocusPainted(false);
         addSunsButton.addActionListener(e -> {
             game.addSuns(25);
@@ -248,7 +250,6 @@ public class PoobVsZombiesGUI extends JFrame {
         });
 
         JButton endPoobVsZombiesButton = new JButton("Finalizar PoobVsZombies");
-        endPoobVsZombiesButton.setBackground(new Color(255, 186, 186));
         endPoobVsZombiesButton.setFocusPainted(false);
         endPoobVsZombiesButton.addActionListener(e -> {
             game.finish();
@@ -294,7 +295,6 @@ public class PoobVsZombiesGUI extends JFrame {
                 if (game.getBoard().getElement(row, column).getContent() instanceof Plant plant) {
                     game.shovelAction(row, column);
                     elementButton.setIcon(null);
-                    elementButton.setBackground(new Color(240, 240, 240));
                     isShovelActive = false;
                 }
             } else if (selectedPlant != null) {
@@ -304,9 +304,6 @@ public class PoobVsZombiesGUI extends JFrame {
                     if (plant != null && game.putPlant(plant, row, column)) {
                         updateIconPlant(elementButton, plant);
                         updateSuns();
-                        if (plant instanceof Sunflower) {
-                            ((Sunflower) plant).setPosition(row, column);
-                        }
                         game.startPlantAction(plant);
                     }
                 }
@@ -329,11 +326,26 @@ public class PoobVsZombiesGUI extends JFrame {
         });
     }
 
+    public void peashooterAttack(ScheduledExecutorService scheduler, Board board, Peashooter peashooter, int row) {
+        int RATE_OF_FIRE = peashooter.getRATE_OF_FIRE();
+        scheduler.scheduleAtFixedRate(() -> {
+            peashooter.attack(row, this, board);
+        }, RATE_OF_FIRE, RATE_OF_FIRE, TimeUnit.MILLISECONDS);
+    }
+
+    public void manageSunflowerSuns(ScheduledExecutorService scheduler, Sunflower sunflower, int row, int column) {
+        scheduler.scheduleAtFixedRate(() -> {
+            sunflower.generateSun();
+            iluminateElementSunflower(row, column);
+        }, 5, 20, TimeUnit.SECONDS);
+    }
 
     public void iluminateElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
-                boardButtons[row][column].setBackground(new Color(255, 255, 0));
+                Plant plant = (Plant) game.getBoard().getPlant(row, column);
+                ImageIcon illuminatedIcon = uploadImage(plant.getImagePath(), 60, 60);
+                boardButtons[row][column].setIcon(illuminatedIcon);
             });
         }
     }
@@ -341,7 +353,8 @@ public class PoobVsZombiesGUI extends JFrame {
     public void restoreElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
-                boardButtons[row][column].setBackground(new Color(240, 240, 240));
+                Plant plant = (Plant) game.getBoard().getPlant(row, column);
+                updateIconPlant(boardButtons[row][column], plant);
             });
         }
     }
@@ -349,13 +362,7 @@ public class PoobVsZombiesGUI extends JFrame {
     private Plant createPlantAccordSelection() {
         if (selectedPlant != null) {
             String plantName = selectedPlant.getText();
-            return switch (plantName) {
-                case "Sunflower" -> new Sunflower(game);
-                case "Peashooter" -> new Peashooter(game);
-                case "WallNut" -> new WallNut(game);
-                case "PotatoMine" -> new PotatoMine(game);
-                default -> null;
-            };
+            return game.createPlantAccordSelection(plantName);
         }
         return null;
     }
@@ -385,16 +392,13 @@ public class PoobVsZombiesGUI extends JFrame {
             for (int j = 0; j < board.getColumns(); j++) {
                 JButton button = boardButtons[i][j];
                 Object content = board.getElement(i, j).getContent();
-
                 SwingUtilities.invokeLater(() -> {
 
                     button.setIcon(null);
-                    button.setBackground(new Color(240, 240, 240));
 
                     switch (content) {
                         case null -> button.setIcon(null);
                         case Zombie zombie -> {
-
                             ImageIcon icon = uploadImage(zombie.getImagePath(), 40, 60);
                             button.setIcon(icon);
                         }
@@ -402,11 +406,6 @@ public class PoobVsZombiesGUI extends JFrame {
                             ImageIcon icon = new ImageIcon(plant.getImagePath());
                             button.setIcon(icon);
 
-                            if (plant instanceof Sunflower sunflower) {
-                                if (sunflower.sunAvailable()) {
-                                    button.setBackground(new Color(255, 255, 0));
-                                }
-                            }
                         }
                         case LawnMower lawnMower -> {
                             ImageIcon icon = uploadImage(lawnMower.getImagePath(), 40, 40);

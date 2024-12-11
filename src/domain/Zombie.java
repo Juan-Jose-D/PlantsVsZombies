@@ -15,8 +15,7 @@ public abstract class Zombie {
     public abstract String getImagePath();
 
     public void receiveDamage(int damage){
-        int newHealth = health - damage;
-        this.health = newHealth;
+        this.health = health - damage;
     }
 
     public int getDamage(){

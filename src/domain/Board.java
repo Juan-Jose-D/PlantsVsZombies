@@ -79,5 +79,18 @@ public class Board {
         return -1;
     }
 
+    public int getColumnObject(Object object){
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                if (elements[row][column].getContent() != null){
+                    if (elements[row][column].getContent().equals(object)) {
+                        return column;
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
 
 }

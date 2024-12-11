@@ -2,16 +2,11 @@ package domain;
 
 import presentation.PoobVsZombiesGUI;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class Peashooter extends Plant{
-
-    private PoobVsZombies game;
+    int RATE_OF_FIRE = 1500;
 
     public Peashooter(PoobVsZombies game) {
         super(100, 300);
-        this.game = game;
     }
 
 
@@ -27,21 +22,15 @@ public class Peashooter extends Plant{
         }
     }
 
-    public void startActions(ScheduledExecutorService scheduler, PoobVsZombiesGUI gui, Board board){
-    }
-
-    public void startActions(ScheduledExecutorService scheduler, PoobVsZombiesGUI gui, Board board, int row){
-        int RATE_OF_FIRE = 1500;
-        scheduler.scheduleAtFixedRate(() -> {
-            attack(row, gui, board);
-        }, RATE_OF_FIRE, RATE_OF_FIRE, TimeUnit.MILLISECONDS);
-    }
-
     public String getImagePath() {
         return "src/resources/images/peashooter.gif";
     }
 
     public String getImageCardPath() {
         return "src/resources/images/peashooterCard.png";
+    }
+
+    public int getRATE_OF_FIRE(){
+        return RATE_OF_FIRE;
     }
 }

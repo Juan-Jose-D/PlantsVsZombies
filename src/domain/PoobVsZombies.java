@@ -114,11 +114,12 @@ public class PoobVsZombies {
     }
 
     public void startPlantAction(Plant plant) {
+        int row = board.getRowObject(plant);
+        int column = board.getColumnObject(plant);
         if(plant instanceof Peashooter peashooter){
-            int row = board.getRowObject(plant);
-            peashooter.startActions(scheduler, poobVsZombiesGUI, board, row);
-        } else {
-            plant.startActions(scheduler, poobVsZombiesGUI, board);
+            poobVsZombiesGUI.peashooterAttack(scheduler, board, peashooter, row);
+        } else if (plant instanceof Sunflower sunflower) {
+            poobVsZombiesGUI.manageSunflowerSuns(scheduler, sunflower, row, column);
         }
     }
 
@@ -148,19 +149,23 @@ public class PoobVsZombies {
                     int newColumn = column - 1;
 
                     if (newColumn == 1) {
-                        boolean lawnMowerExists = false;
-                        for (LawnMower mower : lawnMowers) {
-                            if (mower.getRow() == row) {
-                                lawnMowerExists = true;
-                                break;
+                        if (board.getPlant(row, 1) == null) {
+                            boolean lawnMowerExists = false;
+                            for (LawnMower mower : lawnMowers) {
+                                if (mower.getRow() == row) {
+                                    lawnMowerExists = true;
+                                    break;
+                                }
+                            }
+
+                            if (lawnMowerExists) {
+                                activateLawnMower(row);
+                                return;
                             }
                         }
-
-                        if (lawnMowerExists) {
-                            activateLawnMower(row);
-                            return;
-                        }
                     }
+
+
 
                     if (newColumn < 0) {
                         System.out.println("Fin del juego");
@@ -214,6 +219,16 @@ public class PoobVsZombies {
                 }
             }
         }
+    }
+
+    public Plant createPlantAccordSelection(String plantName) {
+            return switch (plantName) {
+                case "Sunflower" -> new Sunflower(this);
+                case "Peashooter" -> new Peashooter(this);
+                case "WallNut" -> new WallNut(this);
+                case "PotatoMine" -> new PotatoMine(this);
+                default -> null;
+            };
     }
 
 
