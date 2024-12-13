@@ -1,6 +1,8 @@
 package domain;
 
-public class Element {
+import java.io.Serializable;
+
+public class Element implements Serializable {
     private Object content;
 
     public Object getContent() {

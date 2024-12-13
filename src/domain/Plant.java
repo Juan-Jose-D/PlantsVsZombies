@@ -4,7 +4,7 @@ import presentation.PoobVsZombiesGUI;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-public abstract class Plant {
+public abstract class Plant  {
     protected int cost;
     protected int health;
     protected String name;

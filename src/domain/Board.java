@@ -1,6 +1,8 @@
 package domain;
 
-public class Board {
+import java.io.Serializable;
+
+public class Board  implements Serializable {
 
     private final int rows;
     private final int columns;

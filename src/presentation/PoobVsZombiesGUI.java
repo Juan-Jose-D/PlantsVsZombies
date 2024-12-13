@@ -6,9 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Clase principal para la interfaz gráfica del juego PoobVsZombies.
+ * Gestiona la visualización y la interacción del usuario con el juego.
+ */
 public class PoobVsZombiesGUI extends JFrame {
     private PoobVsZombies game;
     private JPanel gridPanel;
@@ -17,21 +22,31 @@ public class PoobVsZombiesGUI extends JFrame {
     private JButton shovelButton;
     private JButton[][] boardButtons;
     private boolean isShovelActive = false;
+    private JMenu menuFile;
+    private JMenuBar menuBar;
+    private JMenuItem openItem, saveItem;
+    private JFileChooser fileChooser;
 
+    /**
+     * Constructor que inicializa la interfaz gráfica del juego.
+     */
     public PoobVsZombiesGUI() {
-
         setTitle("Plants vs Zombies");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(1650,1080);
+        setSize(1650, 1080);
         setLocationRelativeTo(null);
 
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        prepareElementsMenu();
 
         showInitialPanel();
         setVisible(true);
     }
 
+    /**
+     * Muestra el panel inicial con las opciones de juego.
+     */
     private void showInitialPanel() {
         JPanel initialPanel = getIntroBackground();
         initialPanel.setLayout(null);
@@ -57,6 +72,11 @@ public class PoobVsZombiesGUI extends JFrame {
         repaint();
     }
 
+    /**
+     * Crea y devuelve un JLabel con la imagen de inicio.
+     *
+     * @return JLabel con la imagen de inicio.
+     */
     private JLabel getImageLabel() {
         ImageIcon imageIcon = uploadImage("src/resources/images/play.png", 300, 100);
         JLabel imageLabel = new JLabel(imageIcon);
@@ -70,13 +90,18 @@ public class PoobVsZombiesGUI extends JFrame {
         return imageLabel;
     }
 
+    /**
+     * Crea y devuelve un panel con la imagen de fondo del panel inicial.
+     *
+     * @return JPanel con la imagen de fondo.
+     */
     private JPanel getIntroBackground() {
         JPanel backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 ImageIcon backgroundImage = new ImageIcon("src/resources/images/intro.png");
-                g.drawImage(backgroundImage.getImage(), 0,0, getWidth(), getHeight(), this);
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };
         backgroundPanel.setPreferredSize(new Dimension(500, 120));
@@ -85,6 +110,9 @@ public class PoobVsZombiesGUI extends JFrame {
         return backgroundPanel;
     }
 
+    /**
+     * Muestra el panel de selección de modo de juego.
+     */
     private void showGameModeSelectionPanel() {
         JPanel modeSelectionPanel = new JPanel() {
             @Override
@@ -109,6 +137,7 @@ public class PoobVsZombiesGUI extends JFrame {
                 public void mouseClicked(MouseEvent evt) {
                     startPoobVsZombies(modo);
                 }
+
                 @Override
                 public void mouseEntered(MouseEvent evt) {
                     modeLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -123,7 +152,11 @@ public class PoobVsZombiesGUI extends JFrame {
         repaint();
     }
 
-
+    /**
+     * Inicia el juego con el modo seleccionado.
+     *
+     * @param mod El modo de juego seleccionado.
+     */
     private void startPoobVsZombies(String mod) {
         this.game = new PoobVsZombies(this);
         game.startPoobVsZombies(mod);
@@ -139,6 +172,11 @@ public class PoobVsZombiesGUI extends JFrame {
         repaint();
     }
 
+    /**
+     * Prepara el panel superior del juego.
+     *
+     * @param principalPanel El panel principal al que se agrega el panel superior.
+     */
     private void prepareTopPanel(JPanel principalPanel) {
         JPanel topPanel = getBackgroundPanel();
         topPanel.setLayout(new BorderLayout());
@@ -171,7 +209,11 @@ public class PoobVsZombiesGUI extends JFrame {
         shovelAction();
     }
 
-
+    /**
+     * Crea y devuelve un panel de fondo para el panel superior.
+     *
+     * @return JPanel con el fondo configurado.
+     */
     private JPanel getBackgroundPanel() {
         JPanel topPanel = new JPanel() {
             @Override
@@ -187,6 +229,11 @@ public class PoobVsZombiesGUI extends JFrame {
         return topPanel;
     }
 
+    /**
+     * Prepara el panel que contiene el tablero de juego.
+     *
+     * @param principalPanel El panel principal al que se agrega el tablero.
+     */
     private void prepareGridPanel(JPanel principalPanel) {
         gridPanel = new JPanel() {
             @Override
@@ -202,6 +249,9 @@ public class PoobVsZombiesGUI extends JFrame {
         principalPanel.add(gridPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Prepara el panel de las plantas para seleccionar
+     */
     private JPanel preparePlantsPanel() {
         JPanel plantsPanel = new JPanel();
         plantsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -215,6 +265,11 @@ public class PoobVsZombiesGUI extends JFrame {
         return plantsPanel;
     }
 
+    /**
+     * Crea visiblemente las cartas de las plantas
+     * *
+     *@param plant Una planta especifica
+     */
     private JButton createPlantButton(Plant plant) {
         JButton plantButton = new JButton(plant.getClass().getSimpleName());
         plantButton.setPreferredSize(new Dimension(70, 90));
@@ -238,7 +293,9 @@ public class PoobVsZombiesGUI extends JFrame {
         return plantButton;
     }
 
-
+    /**
+     * Panel de abajo.
+     */
     private void prepareBottomPanel(JPanel principalPanel) {
         JPanel bottomPanel = new JPanel();
 
@@ -262,6 +319,9 @@ public class PoobVsZombiesGUI extends JFrame {
         principalPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Inicializa el tablero de juego con botones en cada celda.
+     */
     private void startBoard() {
         Board board = game.getBoard();
         boardButtons = new JButton[board.getRows()][board.getColumns()];
@@ -274,6 +334,13 @@ public class PoobVsZombiesGUI extends JFrame {
         }
     }
 
+    /**
+     * Crea y devuelve un botón representando una celda del tablero.
+     *
+     * @param row Fila de la celda.
+     * @param column Columna de la celda.
+     * @return JButton configurado para la celda.
+     */
     private JButton createButtonElement(int row, int column) {
         JButton elementButton = new JButton();
         elementButton.setPreferredSize(new Dimension(60, 60));
@@ -288,6 +355,13 @@ public class PoobVsZombiesGUI extends JFrame {
         return elementButton;
     }
 
+    /**
+     * Configura la acción de colocar plantas en las celdas del tablero.
+     *
+     * @param elementButton Botón de la celda.
+     * @param row Fila de la celda.
+     * @param column Columna de la celda.
+     */
     private void putPlantAction(JButton elementButton, int row, int column) {
         elementButton.addActionListener(e -> {
 
@@ -319,13 +393,18 @@ public class PoobVsZombiesGUI extends JFrame {
         });
     }
 
-
+    /**
+     * Configura el comportamiento de la pala para eliminar elementos.
+     */
     private void shovelAction() {
         shovelButton.addActionListener(e -> {
             isShovelActive = !isShovelActive;
         });
     }
 
+    /**
+     * Se encarga del ataque de los lanzaguisantes
+     */
     public void peashooterAttack(ScheduledExecutorService scheduler, Board board, Peashooter peashooter, int row) {
         int RATE_OF_FIRE = peashooter.getRATE_OF_FIRE();
         scheduler.scheduleAtFixedRate(() -> {
@@ -333,6 +412,9 @@ public class PoobVsZombiesGUI extends JFrame {
         }, RATE_OF_FIRE, RATE_OF_FIRE, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Se encarga de los soles del girasol
+     */
     public void manageSunflowerSuns(ScheduledExecutorService scheduler, Sunflower sunflower, int row, int column) {
         scheduler.scheduleAtFixedRate(() -> {
             sunflower.generateSun();
@@ -340,6 +422,9 @@ public class PoobVsZombiesGUI extends JFrame {
         }, 5, 20, TimeUnit.SECONDS);
     }
 
+    /**
+     * Cambia la imagen del girasol cuando tiene sol disponible
+     */
     public void iluminateElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
@@ -350,6 +435,9 @@ public class PoobVsZombiesGUI extends JFrame {
         }
     }
 
+    /**
+     * Vuelve al girasol normal cuando ya se recoge el sol
+     */
     public void restoreElementSunflower(int row, int column) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
@@ -359,6 +447,9 @@ public class PoobVsZombiesGUI extends JFrame {
         }
     }
 
+    /**
+     * Crea plantas en el dominio dada una planta seleccionada
+     */
     private Plant createPlantAccordSelection() {
         if (selectedPlant != null) {
             String plantName = selectedPlant.getText();
@@ -367,12 +458,18 @@ public class PoobVsZombiesGUI extends JFrame {
         return null;
     }
 
+    /**
+     * Actualiza el icono de una planta
+     */
     private void updateIconPlant(JButton elementButton, Plant plant) {
         ImageIcon icon = new ImageIcon(plant.getImagePath());
         elementButton.setIcon(icon);
         elementButton.setText("");
     }
 
+    /**
+     * Actualiza el icono de un Zombie
+     */
     public void updateElementZombie(int row, int column, Zombie zombie) {
         if (boardButtons != null && boardButtons[row][column] != null) {
             SwingUtilities.invokeLater(() -> {
@@ -382,10 +479,17 @@ public class PoobVsZombiesGUI extends JFrame {
         }
     }
 
+    /**
+     * Actualiza la cantidad de soles mostrada en la interfaz.
+     */
     public void updateSuns() {
         sunLabel.setText(String.valueOf(game.getSuns()));
     }
 
+    /**
+     * Actualiza la vista
+     * @param board el tablero
+     */
     public void updateView(Board board) {
 
         for (int i = 0; i < board.getRows(); i++) {
@@ -420,6 +524,9 @@ public class PoobVsZombiesGUI extends JFrame {
     }
 
 
+    /**
+     * Metodo auxiliar para cargar una imagen
+     */
     private ImageIcon uploadImage(String imagePath, int width, int height) {
         ImageIcon icon = new ImageIcon(imagePath);
         if (icon.getIconWidth() == -1) {
@@ -430,12 +537,77 @@ public class PoobVsZombiesGUI extends JFrame {
         return new ImageIcon(image);
     }
 
-    private void saveGame() throws PoobVsZombiesException {
+    /**
+     * Prepara el menu
+     */
+    private void prepareElementsMenu() {
+        menuBar = new JMenuBar();
+        menuFile = new JMenu("Archivo");
+        fileChooser = new JFileChooser();
 
+        openItem = new JMenuItem("Abrir");
+        saveItem = new JMenuItem("Guardar como");
+
+        menuFile.add(openItem);
+        menuFile.add(saveItem);
+
+        menuBar.add(menuFile);
+        setJMenuBar(menuBar);
+
+        prepareActionsMenu();
     }
 
-    private void loadGame() throws PoobVsZombiesException {
+    /**
+     * Prepara las acciones del menu
+     */
+    private void prepareActionsMenu(){
+        optionSave();
+        optionOpen();
+    }
 
+    private void optionSave(){
+        saveItem.addActionListener(e -> {
+            int returnValue = fileChooser.showSaveDialog(presentation.PoobVsZombiesGUI.this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    game.save(selectedFile);
+                } catch (PoobVsZombiesException r) {
+                    JOptionPane.showMessageDialog(null, r.getMessage());
+                }
+            }
+        });
+    }
+
+    private void optionOpen() {
+        openItem.addActionListener(e -> {
+            int returnValue = fileChooser.showOpenDialog(PoobVsZombiesGUI.this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    PoobVsZombies loadedGame = PoobVsZombies.open(selectedFile);
+
+                    this.game = loadedGame;
+                    this.game.setPoobVsZombiesGUI(this);
+
+                    restartGameWithLoadedState();
+                } catch (PoobVsZombiesException r) {
+                    JOptionPane.showMessageDialog(null, r.getMessage());
+                }
+            }
+        });
+    }
+
+    private void restartGameWithLoadedState() {
+        JPanel principalPanel = new JPanel(new BorderLayout());
+
+        prepareTopPanel(principalPanel);
+        prepareGridPanel(principalPanel);
+        prepareBottomPanel(principalPanel);
+
+        setContentPane(principalPanel);
+        revalidate();
+        repaint();
     }
 
     public static void main(String[] args) {

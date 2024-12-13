@@ -2,7 +2,7 @@ package domain;
 
 import presentation.PoobVsZombiesGUI;
 
-public abstract class Zombie {
+public abstract class Zombie  {
 
     protected int health;
     protected int damage;

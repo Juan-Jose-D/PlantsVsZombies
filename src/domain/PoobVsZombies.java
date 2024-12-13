@@ -2,6 +2,8 @@ package domain;
 
 import presentation.PoobVsZombiesGUI;
 
+import javax.swing.*;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -9,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.Random;
 import java.util.ArrayList;
 
-public class PoobVsZombies {
-    private final PoobVsZombiesGUI poobVsZombiesGUI;
+public class PoobVsZombies implements Serializable {
+    private PoobVsZombiesGUI poobVsZombiesGUI;
     private int suns;
     private final Board board;
-    private final ScheduledExecutorService scheduler;
+    private ScheduledExecutorService scheduler;
     private List<LawnMower> lawnMowers;
 
     public PoobVsZombies(PoobVsZombiesGUI poobVsZombiesGUI) {
@@ -53,7 +55,12 @@ public class PoobVsZombies {
                 int column = board.getColumns() - 1;
 
                 if (board.isEmpty(rowRandom, column)) {
-                    Zombie zombie = chooseZombie();
+                    Zombie zombie = null;
+                    try {
+                        zombie = chooseZombie();
+                    } catch (PoobVsZombiesException e) {
+                        throw new RuntimeException(e);
+                    }
                     board.addZombi(zombie, rowRandom, column);
                     poobVsZombiesGUI.updateElementZombie(rowRandom, column, zombie);
                     addedZombie = true;
@@ -61,11 +68,11 @@ public class PoobVsZombies {
             }
         }, 0, 5, TimeUnit.SECONDS);
 
-        scheduler.scheduleAtFixedRate(this::moveZombie, 2, 2, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::moveZombie, 7, 7, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
-    public Zombie chooseZombie(){
+    public Zombie chooseZombie() throws PoobVsZombiesException {
         Random random = new Random();
         int zombieType = random.nextInt(3);
 
@@ -73,7 +80,7 @@ public class PoobVsZombies {
             case 0 -> new Basic();
             case 1 -> new Conehead();
             case 2 -> new Buckethead();
-            default -> throw new IllegalStateException("Error Interno.");
+            default -> throw new PoobVsZombiesException(PoobVsZombiesException.ERROR);
         };
     }
 
@@ -241,6 +248,7 @@ public class PoobVsZombies {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
         }
+        JOptionPane.showMessageDialog(null, "PoobVsZombies terminado");
     }
 
     public int getSuns() {
@@ -258,4 +266,35 @@ public class PoobVsZombies {
     public Board getBoard() {
         return board;
     }
+
+    public void save(File file) throws PoobVsZombiesException {
+        PoobVsZombiesGUI tempGUI = this.poobVsZombiesGUI;
+        this.poobVsZombiesGUI = null;
+
+        if (!file.getName().endsWith(".dat")) {
+            file = new File(file.getAbsolutePath() + ".dat");
+        }
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(this);
+        } catch (Exception e) {
+            throw new PoobVsZombiesException(PoobVsZombiesException.ERROR_SAVE + file.getName());
+        } finally {
+            this.poobVsZombiesGUI = tempGUI;
+        }
+    }
+
+    public static PoobVsZombies open(File file) throws PoobVsZombiesException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return (PoobVsZombies) ois.readObject();
+        } catch (Exception e) {
+            throw new PoobVsZombiesException(PoobVsZombiesException.ERROR_OPEN + file.getName());
+        }
+    }
+
+
+    public void setPoobVsZombiesGUI(PoobVsZombiesGUI gui) {
+        this.poobVsZombiesGUI = gui;
+    }
+
+
 }
