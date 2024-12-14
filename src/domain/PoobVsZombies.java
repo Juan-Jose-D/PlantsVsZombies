@@ -4,12 +4,10 @@ import presentation.PoobVsZombiesGUI;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.Random;
-import java.util.ArrayList;
 
 public class PoobVsZombies implements Serializable {
     private PoobVsZombiesGUI poobVsZombiesGUI;
@@ -17,12 +15,18 @@ public class PoobVsZombies implements Serializable {
     private final Board board;
     private ScheduledExecutorService scheduler;
     private List<LawnMower> lawnMowers;
+    private int puntaje;
+    private int brains;
+    private Map<Integer, Queue<Zombie>> zombieQueues;
 
     public PoobVsZombies(PoobVsZombiesGUI poobVsZombiesGUI) {
         this.board = new Board(6, 10);
         this.poobVsZombiesGUI = poobVsZombiesGUI;
         this.suns = 5000;
+        this.puntaje = 0;
+        this.brains = 5000;
         this.scheduler = Executors.newScheduledThreadPool(10);
+        this.zombieQueues = new HashMap<>();
     }
 
     public void startPoobVsZombies(String mod) {
@@ -39,10 +43,21 @@ public class PoobVsZombies implements Serializable {
                 break;
 
             case "Player Vs Player":
+                playerVsPlayer();
                 break;
             default:
         }
     }
+
+    public void addZombieToQueue(Zombie zombie, int row) {
+        zombieQueues.putIfAbsent(row, new LinkedList<>());
+        zombieQueues.get(row).offer(zombie);
+    }
+
+    public Queue<Zombie> getZombieQueueForRow(int row) {
+        return zombieQueues.getOrDefault(row, new LinkedList<>());
+    }
+
 
     public void playerVsMachine() {
         createLawnMowers();
@@ -63,11 +78,18 @@ public class PoobVsZombies implements Serializable {
                     }
                     board.addZombi(zombie, rowRandom, column);
                     poobVsZombiesGUI.updateElementZombie(rowRandom, column, zombie);
+                    addZombieToQueue(zombie, rowRandom);
                     addedZombie = true;
                 }
             }
         }, 0, 5, TimeUnit.SECONDS);
 
+        scheduler.scheduleAtFixedRate(this::moveZombie, 7, 7, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public void playerVsPlayer() {
+        createLawnMowers();
         scheduler.scheduleAtFixedRate(this::moveZombie, 7, 7, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
@@ -127,7 +149,14 @@ public class PoobVsZombies implements Serializable {
             poobVsZombiesGUI.peashooterAttack(scheduler, board, peashooter, row);
         } else if (plant instanceof Sunflower sunflower) {
             poobVsZombiesGUI.manageSunflowerSuns(scheduler, sunflower, row, column);
+        } else if (plant instanceof PotatoMine potatoMine) {
+            poobVsZombiesGUI.potatoMineAttack(scheduler, board, potatoMine, row, column);
         }
+    }
+
+    public void startZombieAction(Zombie zombie, int row) {
+        addZombieToQueue(zombie, row);
+
     }
 
     public boolean putPlant(Plant plant, int row, int column) {
@@ -135,6 +164,17 @@ public class PoobVsZombies implements Serializable {
             board.addPlant(plant,row,column);
             subSuns(plant.getCost());
             return true;
+        }
+        return false;
+    }
+
+    public boolean putZombie(Zombie zombie, int row, int column) {
+        if (column >= 8){
+            if (zombie.getCost() <= brains && board.isEmpty(row,column)) {
+                board.addZombi(zombie,row,column);
+                subBrains(zombie.getCost());
+                return true;
+            }
         }
         return false;
     }
@@ -200,7 +240,10 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
-
+    public void ganar(){
+        JOptionPane.showMessageDialog(null, "GANASTE!!!");
+        finish();
+    }
     public void zombieAttack() {
         for (int row = 0; row < board.getRows(); row++) {
             for (int column = board.getColumns() - 1; column >= 0; column--) {
@@ -238,6 +281,15 @@ public class PoobVsZombies implements Serializable {
             };
     }
 
+    public Zombie createZombieAccordSelection(String zombieName) {
+        return switch (zombieName) {
+            case "Basic" -> new Basic();
+            case "Conehead" -> new Conehead();
+            case "Buckethead" -> new Buckethead();
+            default -> null;
+        };
+    }
+
 
     public void updateEstate() {
         poobVsZombiesGUI.updateView(board);
@@ -259,8 +311,28 @@ public class PoobVsZombies implements Serializable {
         suns += amount;
     }
 
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    public int getBrains() {
+        return brains;
+    }
+
+    public void addPuntaje(int amount) {
+        puntaje += amount;
+        poobVsZombiesGUI.updatePuntaje();
+        if (puntaje >= 200){
+            ganar();
+        }
+    }
+
     public void subSuns(int amount) {
         suns = Math.max(0, suns - amount);
+    }
+
+    public void subBrains(int amount) {
+        brains = Math.max(0, brains - amount);
     }
 
     public Board getBoard() {
@@ -295,6 +367,5 @@ public class PoobVsZombies implements Serializable {
     public void setPoobVsZombiesGUI(PoobVsZombiesGUI gui) {
         this.poobVsZombiesGUI = gui;
     }
-
 
 }

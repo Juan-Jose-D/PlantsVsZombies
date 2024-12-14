@@ -16,9 +16,7 @@ public abstract class Plant  {
 
     public void die(int row, int column, Board board, PoobVsZombiesGUI gui) {
         board.getElement(row, column).setContent(null);
-        if (this instanceof Sunflower) {
-            gui.restoreElementSunflower(row, column);
-        }
+
         gui.updateView(board);
     }
 

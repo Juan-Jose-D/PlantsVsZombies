@@ -2,22 +2,33 @@ package domain;
 
 import presentation.PoobVsZombiesGUI;
 
+import java.util.Queue;
+
 public class Peashooter extends Plant{
     int RATE_OF_FIRE = 1500;
+    private PoobVsZombies game;
 
     public Peashooter(PoobVsZombies game) {
         super(100, 300);
+        this.game = game;
     }
 
 
     public void attack(int row, PoobVsZombiesGUI gui, Board board) {
-        for (int column = 0; column < board.getColumns(); column++){
-            if (board.getElement(row, column).getContent() instanceof Zombie zombie){
-                int DAMAGE = 25;
-                zombie.receiveDamage(DAMAGE);
-                if (zombie.getHealth() <= 0){
-                    zombie.die(row, column, board, gui);
-                }
+        Queue<Zombie> zombieQueue = game.getZombieQueueForRow(row);
+
+        if (!zombieQueue.isEmpty()) {
+            Zombie zombie = zombieQueue.peek();
+
+            int DAMAGE = 25;
+            int zombieRow = board.getRowObject(zombie);
+            int zombieColumn = board.getColumnObject(zombie);
+            zombie.receiveDamage(DAMAGE);
+
+            if (zombie.getHealth() <= 0) {
+                zombie.die(zombieRow, zombieColumn , board, gui);
+                game.addPuntaje(zombie.getPuntaje());
+                zombieQueue.poll();
             }
         }
     }

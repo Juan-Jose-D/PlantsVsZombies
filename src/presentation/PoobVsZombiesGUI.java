@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -17,8 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class PoobVsZombiesGUI extends JFrame {
     private PoobVsZombies game;
     private JPanel gridPanel;
-    private JLabel sunLabel;
+    private JLabel sunLabel, puntajeLabel, brainLabel;
     private JButton selectedPlant;
+    private JButton selectedZombie;
     private JButton shovelButton;
     private JButton[][] boardButtons;
     private boolean isShovelActive = false;
@@ -26,6 +28,7 @@ public class PoobVsZombiesGUI extends JFrame {
     private JMenuBar menuBar;
     private JMenuItem openItem, saveItem;
     private JFileChooser fileChooser;
+    private String mode;
 
     /**
      * Constructor que inicializa la interfaz gráfica del juego.
@@ -124,7 +127,7 @@ public class PoobVsZombiesGUI extends JFrame {
         };
         modeSelectionPanel.setLayout(null);
         modeSelectionPanel.setPreferredSize(new Dimension(1650, 1080));
-        String[] mods = {"Player Vs Machine", "Machine Vs Machine", "Player Vs Player"};
+        String[] mods = {"Player Vs Machine", "Player Vs Player", "Machine Vs Machine"};
         int yPosition = 210;
         for (String modo : mods) {
             JLabel modeLabel = new JLabel(modo);
@@ -158,8 +161,15 @@ public class PoobVsZombiesGUI extends JFrame {
      * @param mod El modo de juego seleccionado.
      */
     private void startPoobVsZombies(String mod) {
+        this.mode = mod;
         this.game = new PoobVsZombies(this);
-        game.startPoobVsZombies(mod);
+        if ("Player Vs Machine".equals(mod)) {
+            game.startPoobVsZombies("Player Vs Machine");
+        } else if ("Machine Vs Machine".equals(mod)) {
+            game.startPoobVsZombies("Machine Vs Machine");
+        } else if ("Player Vs Player".equals(mod)) {
+            game.startPoobVsZombies("Player Vs Player");
+        }
 
         JPanel principalPanel = new JPanel(new BorderLayout());
 
@@ -188,9 +198,19 @@ public class PoobVsZombiesGUI extends JFrame {
         sunLabel.setFont(new Font("Arial", Font.BOLD, 16));
         sunsPanel.add(sunLabel);
 
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.setOpaque(false);
+
         JPanel plantsPanel = preparePlantsPanel();
-        plantsPanel.setBorder(BorderFactory.createEmptyBorder(10, 80, 10, 10));
         plantsPanel.setOpaque(false);
+
+        JPanel zombiesPanel = prepareZombiesPanel();
+        zombiesPanel.setOpaque(false);
+
+        centerPanel.add(plantsPanel);
+        if (Objects.equals(mode, "Player Vs Player")) {
+            centerPanel.add(zombiesPanel);
+        }
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
@@ -202,12 +222,51 @@ public class PoobVsZombiesGUI extends JFrame {
         rightPanel.add(shovelButton);
 
         topPanel.add(sunsPanel, BorderLayout.WEST);
-        topPanel.add(plantsPanel, BorderLayout.CENTER);
         topPanel.add(rightPanel, BorderLayout.EAST);
-
+        topPanel.add(centerPanel, BorderLayout.CENTER);
         principalPanel.add(topPanel, BorderLayout.NORTH);
         shovelAction();
     }
+
+    private JPanel prepareZombiesPanel() {
+
+        JPanel zombiesPanel = new JPanel();
+        zombiesPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+
+        Zombie[] zombies = {new Basic(), new Conehead(), new Buckethead()};
+
+        for (Zombie zombie : zombies) {
+            JButton zombieButton = createZombieButton(zombie);
+            zombiesPanel.add(zombieButton);
+        }
+        return zombiesPanel;
+    }
+
+    private JButton createZombieButton(Zombie zombie) {
+        JButton zombieButton = new JButton(zombie.getClass().getSimpleName());
+        zombieButton.setPreferredSize(new Dimension(70, 90));
+        zombieButton.setFocusPainted(false);
+        zombieButton.setBorderPainted(true);
+        zombieButton.setContentAreaFilled(true);
+        zombieButton.setOpaque(false);
+
+        ImageIcon cardImage = uploadImage(zombie.getImagePath(), 60, 80);
+        if (cardImage != null) {
+            zombieButton.setIcon(cardImage);
+        }
+
+        zombieButton.addActionListener(e -> {
+            if (selectedZombie != null) {
+                selectedZombie.setBorderPainted(false);
+            }
+            selectedZombie = zombieButton;
+            selectedPlant = null;
+            zombieButton.setBorderPainted(true);
+        });
+
+        return zombieButton;
+    }
+
 
     /**
      * Crea y devuelve un panel de fondo para el panel superior.
@@ -287,6 +346,7 @@ public class PoobVsZombiesGUI extends JFrame {
                 selectedPlant.setBorderPainted(false);
             }
             selectedPlant = plantButton;
+            selectedZombie = null;
             plantButton.setBorderPainted(true);
         });
 
@@ -310,10 +370,28 @@ public class PoobVsZombiesGUI extends JFrame {
         endPoobVsZombiesButton.setFocusPainted(false);
         endPoobVsZombiesButton.addActionListener(e -> {
             game.finish();
-            JOptionPane.showMessageDialog(null, "PoobVsZombies terminado");
             System.exit(0);
         });
 
+
+        JPanel puntaje = new JPanel();
+        puntaje.setOpaque(false);
+        puntaje.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 50));
+        puntajeLabel = new JLabel("Puntaje: " + game.getPuntaje());
+        puntajeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        puntaje.add(puntajeLabel);
+
+        JPanel brains = new JPanel();
+        brains.setOpaque(false);
+        brains.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 50));
+        brainLabel = new JLabel("Cerebros: " + game.getBrains());
+        brainLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        brains.add(brainLabel);
+
+        if (Objects.equals(mode, "Player Vs Player")) {
+            bottomPanel.add(brains);
+        }
+        bottomPanel.add(puntaje);
         bottomPanel.add(addSunsButton);
         bottomPanel.add(endPoobVsZombiesButton);
         principalPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -350,10 +428,12 @@ public class PoobVsZombiesGUI extends JFrame {
         elementButton.setBorderPainted(false);
         elementButton.setFocusPainted(false);
 
-        putPlantAction(elementButton, row, column);
+        putActions(elementButton, row, column);
 
         return elementButton;
     }
+
+
 
     /**
      * Configura la acción de colocar plantas en las celdas del tablero.
@@ -362,7 +442,7 @@ public class PoobVsZombiesGUI extends JFrame {
      * @param row Fila de la celda.
      * @param column Columna de la celda.
      */
-    private void putPlantAction(JButton elementButton, int row, int column) {
+    private void putActions(JButton elementButton, int row, int column) {
         elementButton.addActionListener(e -> {
 
             if (isShovelActive) {
@@ -389,9 +469,20 @@ public class PoobVsZombiesGUI extends JFrame {
                         updateSuns();
                     }
                 }
+            } else if (selectedZombie != null){
+                if (game.getBoard().isEmpty(row, column)) {
+                    Zombie zombie = createZombieAccordSelection();
+                    if (zombie != null && game.putZombie(zombie, row, column)) {
+                        updateIconZombie(elementButton, zombie);
+                        updateBrains();
+                        game.startZombieAction(zombie, row);
+                    }
+                }
             }
         });
     }
+
+
 
     /**
      * Configura el comportamiento de la pala para eliminar elementos.
@@ -411,6 +502,17 @@ public class PoobVsZombiesGUI extends JFrame {
             peashooter.attack(row, this, board);
         }, RATE_OF_FIRE, RATE_OF_FIRE, TimeUnit.MILLISECONDS);
     }
+
+    /**
+     * Se encarga del ataque de las minas
+     */
+    public void potatoMineAttack(ScheduledExecutorService scheduler, Board board, PotatoMine potatoMine, int row, int column) {
+        int cooldown = potatoMine.getCooldown();
+        scheduler.scheduleAtFixedRate(() -> {
+            potatoMine.attack(row, column, this, board);
+        }, cooldown, 1, TimeUnit.MILLISECONDS);
+    }
+
 
     /**
      * Se encarga de los soles del girasol
@@ -458,11 +560,25 @@ public class PoobVsZombiesGUI extends JFrame {
         return null;
     }
 
+    private Zombie createZombieAccordSelection() {
+        if (selectedZombie != null) {
+            String zombieName = selectedZombie.getText();
+            return game.createZombieAccordSelection(zombieName);
+        }
+        return null;
+    }
+
     /**
      * Actualiza el icono de una planta
      */
     private void updateIconPlant(JButton elementButton, Plant plant) {
         ImageIcon icon = new ImageIcon(plant.getImagePath());
+        elementButton.setIcon(icon);
+        elementButton.setText("");
+    }
+
+    private void updateIconZombie(JButton elementButton, Zombie zombie) {
+        ImageIcon icon = uploadImage(zombie.getImagePath(), 40, 60);
         elementButton.setIcon(icon);
         elementButton.setText("");
     }
@@ -484,6 +600,14 @@ public class PoobVsZombiesGUI extends JFrame {
      */
     public void updateSuns() {
         sunLabel.setText(String.valueOf(game.getSuns()));
+    }
+
+    public void updateBrains() {
+        brainLabel.setText(String.valueOf(game.getBrains()));
+    }
+
+    public void updatePuntaje() {
+        puntajeLabel.setText("Puntaje: " + game.getPuntaje());
     }
 
     /**

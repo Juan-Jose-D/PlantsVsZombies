@@ -10,4 +10,12 @@ public class Basic extends Zombie {
     public String getImagePath() {
         return "src/resources/images/basic.png";
     }
+
+    public int getPuntaje(){
+        return 10;
+    }
+
+    public int getCost(){
+        return 20;
+    }
 }

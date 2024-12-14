@@ -22,9 +22,13 @@ public abstract class Zombie  {
         return damage;
     }
 
+    public abstract int getPuntaje();
+
     public int getHealth(){
         return health;
     }
+
+    public abstract int getCost();
 
     public void die(int row, int column, Board board, PoobVsZombiesGUI gui) {
         board.getElement(row, column).setContent(null);
