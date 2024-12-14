@@ -40,6 +40,7 @@ public class PoobVsZombies implements Serializable {
                 break;
 
             case "Machine Vs Machine":
+                machineVsMachine();
                 break;
 
             case "Player Vs Player":
@@ -94,6 +95,58 @@ public class PoobVsZombies implements Serializable {
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
+    public void machineVsMachine() {
+        createLawnMowers();
+        scheduler.scheduleAtFixedRate(() -> {
+            Random random = new Random();
+            boolean addedZombie = false;
+
+            for (int intentos = 0; intentos < 10 && !addedZombie; intentos++) {
+                int rowRandom = random.nextInt(board.getRows());
+                int column = board.getColumns() - 1;
+
+                if (board.isEmpty(rowRandom, column)) {
+                    Zombie zombie;
+                    try {
+                        zombie = chooseZombie();
+                    } catch (PoobVsZombiesException e) {
+                        throw new RuntimeException(e);
+                    }
+                    board.addZombi(zombie, rowRandom, column);
+                    poobVsZombiesGUI.updateElementZombie(rowRandom, column, zombie);
+                    addZombieToQueue(zombie, rowRandom);
+                    addedZombie = true;
+                }
+            }
+        }, 0, 5, TimeUnit.SECONDS);
+
+        scheduler.scheduleAtFixedRate(() -> {
+            Random random = new Random();
+            boolean addedPlant = false;
+
+            for (int intentos = 0; intentos < 10 && !addedPlant; intentos++) {
+                int rowRandom = random.nextInt(board.getRows());
+                int columnRandom = random.nextInt(4);
+
+                if (board.isEmpty(rowRandom, columnRandom)) {
+                    Plant plant;
+                    try {
+                        plant = choosePlant();
+                    } catch (PoobVsZombiesException e) {
+                        throw new RuntimeException(e);
+                    }
+                    board.addPlant(plant, rowRandom, columnRandom);
+                    poobVsZombiesGUI.updateElementPlant(rowRandom, columnRandom, plant);
+                    startPlantAction(plant);
+                    addedPlant = true;
+                }
+            }
+        }, 0, 10, TimeUnit.SECONDS);
+
+        scheduler.scheduleAtFixedRate(this::moveZombie, 7, 7, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
+    }
+
     public Zombie chooseZombie() throws PoobVsZombiesException {
         Random random = new Random();
         int zombieType = random.nextInt(3);
@@ -102,6 +155,18 @@ public class PoobVsZombies implements Serializable {
             case 0 -> new Basic();
             case 1 -> new Conehead();
             case 2 -> new Buckethead();
+            default -> throw new PoobVsZombiesException(PoobVsZombiesException.ERROR);
+        };
+    }
+
+    public Plant choosePlant() throws PoobVsZombiesException {
+        Random random = new Random();
+        int plantType = random.nextInt(3);
+
+        return switch (plantType) {
+            case 0 -> new Peashooter(this);
+            case 1 -> new WallNut(this);
+            case 2 -> new PotatoMine(this);
             default -> throw new PoobVsZombiesException(PoobVsZombiesException.ERROR);
         };
     }

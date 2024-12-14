@@ -595,6 +595,15 @@ public class PoobVsZombiesGUI extends JFrame {
         }
     }
 
+    public void updateElementPlant(int row, int column, Plant plant) {
+        if (boardButtons != null && boardButtons[row][column] != null) {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon icon = new ImageIcon(plant.getImagePath());
+                boardButtons[row][column].setIcon(icon);
+            });
+        }
+    }
+
     /**
      * Actualiza la cantidad de soles mostrada en la interfaz.
      */
