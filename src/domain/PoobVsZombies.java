@@ -19,6 +19,12 @@ public class PoobVsZombies implements Serializable {
     private int brains;
     private Map<Integer, Queue<Zombie>> zombieQueues;
 
+
+    /**
+     * Constructor de la lógica del juego.
+     *
+     * @param poobVsZombiesGUI La interfaz gráfica asociada.
+     */
     public PoobVsZombies(PoobVsZombiesGUI poobVsZombiesGUI) {
         this.board = new Board(6, 10);
         this.poobVsZombiesGUI = poobVsZombiesGUI;
@@ -29,10 +35,20 @@ public class PoobVsZombies implements Serializable {
         this.zombieQueues = new HashMap<>();
     }
 
+    /**
+     * Inicia la lógica del juego.
+     *
+     * @param mod el modo de juego.
+     */
     public void startPoobVsZombies(String mod) {
         configureAccordMod(mod);
     }
 
+    /**
+     * Metodo auxiliar de startPoobVsZombies .
+     *
+     * @param mod el modo de juego.
+     */
     public void configureAccordMod(String mod){
         switch (mod){
             case "Player Vs Machine":
@@ -50,6 +66,11 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
+    /**
+     * Agrega un zombie a la cola.
+     *
+     * @param zombie,row el zombie y la fila en la que está.
+     */
     public void addZombieToQueue(Zombie zombie, int row) {
         zombieQueues.putIfAbsent(row, new LinkedList<>());
         zombieQueues.get(row).offer(zombie);
@@ -59,7 +80,9 @@ public class PoobVsZombies implements Serializable {
         return zombieQueues.getOrDefault(row, new LinkedList<>());
     }
 
-
+    /**
+     * Modo de juego Player Vs Machine.
+     */
     public void playerVsMachine() {
         createLawnMowers();
         scheduler.scheduleAtFixedRate(() -> {
@@ -89,12 +112,20 @@ public class PoobVsZombies implements Serializable {
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
+    /**
+     * Modo de juego Player Vs Player.
+     */
     public void playerVsPlayer() {
         createLawnMowers();
+
         scheduler.scheduleAtFixedRate(this::moveZombie, 7, 7, TimeUnit.SECONDS);
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
+
+    /**
+     * Modo de juego Machine Vs Machine.
+     */
     public void machineVsMachine() {
         createLawnMowers();
         scheduler.scheduleAtFixedRate(() -> {
@@ -147,6 +178,12 @@ public class PoobVsZombies implements Serializable {
         scheduler.scheduleAtFixedRate(this::updateEstate, 0, 1, TimeUnit.SECONDS);
     }
 
+
+    /**
+     * Crea un zombie aleatorio.
+     *
+     * @return zombie.
+     */
     public Zombie chooseZombie() throws PoobVsZombiesException {
         Random random = new Random();
         int zombieType = random.nextInt(3);
@@ -159,6 +196,11 @@ public class PoobVsZombies implements Serializable {
         };
     }
 
+    /**
+     * Crea una planta aleatoria.
+     *
+     * @return plant.
+     */
     public Plant choosePlant() throws PoobVsZombiesException {
         Random random = new Random();
         int plantType = random.nextInt(3);
@@ -171,6 +213,9 @@ public class PoobVsZombies implements Serializable {
         };
     }
 
+    /**
+     * Crea las podadoras
+     */
     public void createLawnMowers() {
         lawnMowers = new ArrayList<>();
         int rows = board.getRows();
@@ -182,6 +227,11 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
+    /**
+     * Implementa la lóigca de una podadora
+     *
+     * @param row la fila de la podadora
+     */
     public void activateLawnMower(int row) {
         LawnMower lawnMower = null;
         for (LawnMower mower : lawnMowers) {
@@ -207,6 +257,21 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
+    /**
+     * Implementa la lógica del zombie Brainstein.
+     */
+    public void brainsteinAction() {
+        scheduler.scheduleAtFixedRate(() -> {
+            brains += 25;
+            poobVsZombiesGUI.updateBrains();
+        }, 20, 20, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Inicia la lógica de una planta
+     *
+     * @param plant la planta.
+     */
     public void startPlantAction(Plant plant) {
         int row = board.getRowObject(plant);
         int column = board.getColumnObject(plant);
@@ -219,11 +284,23 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
+    /**
+     * Inicia la lógica de un zombie
+     *
+     * @param zombie,row el zombie y su fila.
+     */
     public void startZombieAction(Zombie zombie, int row) {
         addZombieToQueue(zombie, row);
-
+        if (zombie instanceof Brainstein) {
+            brainsteinAction();
+        }
     }
 
+    /**
+     * Pone una planta en el tablero lógico
+     *
+     * @param plant,row,column la planta, su fila y columna.
+     */
     public boolean putPlant(Plant plant, int row, int column) {
         if (plant.getCost() <= suns && board.isEmpty(row,column)) {
             board.addPlant(plant,row,column);
@@ -233,6 +310,11 @@ public class PoobVsZombies implements Serializable {
         return false;
     }
 
+    /**
+     * Pone un zombie en el tablero lógico
+     *
+     * @param zombie,row,column el zombie, su fila y columna.
+     */
     public boolean putZombie(Zombie zombie, int row, int column) {
         if (column >= 8){
             if (zombie.getCost() <= brains && board.isEmpty(row,column)) {
@@ -244,12 +326,20 @@ public class PoobVsZombies implements Serializable {
         return false;
     }
 
+    /**
+     * Implementa la lógica de la pala
+     *
+     * @param row,column la fila y columna.
+     */
     public void shovelAction(int row, int column){
         if (board.getElement(row, column).getContent() instanceof Plant plant) {
              board.eraseElement(row, column);
         }
     }
 
+    /**
+     * Implementa la lógica del movimiento de los zombies
+     */
     public void moveZombie() {
         List<int[]> movements = new ArrayList<>();
 
@@ -299,16 +389,17 @@ public class PoobVsZombies implements Serializable {
             int newColumn = movement[2];
 
             Zombie zombie = (Zombie) board.getZombie(row, column);
-            poobVsZombiesGUI.updateElementZombie(row, newColumn, zombie);
-            board.moveZombie(row, column, newColumn);
-            poobVsZombiesGUI.updateView(board);
+            if (!(zombie instanceof Brainstein)){
+                poobVsZombiesGUI.updateElementZombie(row, newColumn, zombie);
+                board.moveZombie(row, column, newColumn);
+                poobVsZombiesGUI.updateView(board);
+            }
         }
     }
 
-    public void ganar(){
-        JOptionPane.showMessageDialog(null, "GANASTE!!!");
-        finish();
-    }
+    /**
+     * Implementa la lógica del ataque de los zombies
+     */
     public void zombieAttack() {
         for (int row = 0; row < board.getRows(); row++) {
             for (int column = board.getColumns() - 1; column >= 0; column--) {
@@ -336,6 +427,10 @@ public class PoobVsZombies implements Serializable {
         }
     }
 
+    /**
+     * Crea una planta
+     * @param plantName el nombre de la planta
+     */
     public Plant createPlantAccordSelection(String plantName) {
             return switch (plantName) {
                 case "Sunflower" -> new Sunflower(this);
@@ -346,26 +441,41 @@ public class PoobVsZombies implements Serializable {
             };
     }
 
+    /**
+     * Crea un zombie
+     * @param zombieName el nombre del zombie
+     */
     public Zombie createZombieAccordSelection(String zombieName) {
         return switch (zombieName) {
             case "Basic" -> new Basic();
             case "Conehead" -> new Conehead();
             case "Buckethead" -> new Buckethead();
+            case "Brainstein" -> new Brainstein();
             default -> null;
         };
     }
 
-
+    /**
+     * Actualiza el estado de la GUI
+     */
     public void updateEstate() {
         poobVsZombiesGUI.updateView(board);
     }
 
-
+    /**
+     * Termina el juego
+     */
     public void finish() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
         }
         JOptionPane.showMessageDialog(null, "PoobVsZombies terminado");
+    }
+
+
+    public void ganar(){
+        JOptionPane.showMessageDialog(null, "GANASTE!!!");
+        finish();
     }
 
     public int getSuns() {

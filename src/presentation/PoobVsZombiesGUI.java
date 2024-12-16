@@ -233,7 +233,7 @@ public class PoobVsZombiesGUI extends JFrame {
         JPanel zombiesPanel = new JPanel();
         zombiesPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 20, 10));
 
-        Zombie[] zombies = {new Basic(), new Conehead(), new Buckethead()};
+        Zombie[] zombies = {new Basic(), new Conehead(), new Buckethead(), new Brainstein()};
 
         for (Zombie zombie : zombies) {
             JButton zombieButton = createZombieButton(zombie);
