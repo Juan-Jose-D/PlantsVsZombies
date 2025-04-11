@@ -1,4 +1,4 @@
-# Plants vs Zombies
+# Poob vs Zombies
 
 Este es un proyecto académico inspirado en el clásico juego Plants vs Zombies, desarrollado completamente en Java con interfaz gráfica y utilizando una arquitectura organizada en capas. El objetivo es simular la dinámica del juego original, integrando lógica de juego, animaciones básicas y estructuras de datos.
 
@@ -22,9 +22,13 @@ El juego se hizo para aprender programación orientada a objetos.
 <img src="https://github.com/user-attachments/assets/4975a6ca-02e6-49d4-b088-c654f6da96cd" width="300"/>
 
 
-Arquitectura: Separación en capas domain y presentation
+### Arquitectura
 
-Estructura de datos: Matrices para modelar el tablero del juego y la lógica de ubicación de plantas y zombies
+Separación en capas domain y presentation
+
+### Estructura de datos
+
+Matrices para modelar el tablero del juego y la lógica de ubicación de plantas y zombies
 
 ## 🧱 Estructura del proyecto
 
