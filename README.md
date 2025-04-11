@@ -6,17 +6,20 @@ El juego se hizo para aprender programación orientada a objetos.
 
 ## 🛠️ Tecnologías y herramientas
 
-Lenguaje: Java
+### Lenguaje: Java
 
-![image](https://github.com/user-attachments/assets/d0b124b5-e04d-429c-aecf-ebb71b939f3b)
+<img src="https://github.com/user-attachments/assets/390db7d6-5815-42fa-86f3-d097c13514a2" width="300"/>
 
-IDE: IntelliJ IDEA
+### IDE: IntelliJ IDEA
 
-![image](https://github.com/user-attachments/assets/1ab57c18-579a-451a-8f64-a070ef03e0f4)
+<img src="https://github.com/user-attachments/assets/1ab57c18-579a-451a-8f64-a070ef03e0f4" width="300"/>
 
-Interfaz gráfica: Java Swing
 
-![image](https://github.com/user-attachments/assets/4975a6ca-02e6-49d4-b088-c654f6da96cd)
+
+### Interfaz gráfica: Java Swing
+
+
+<img src="https://github.com/user-attachments/assets/4975a6ca-02e6-49d4-b088-c654f6da96cd" width="300"/>
 
 
 Arquitectura: Separación en capas domain y presentation
