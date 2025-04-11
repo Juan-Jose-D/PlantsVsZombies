@@ -25,6 +25,7 @@ Estructura de datos: Matrices para modelar el tablero del juego y la lógica de 
 
 ## 🧱 Estructura del proyecto
 
+```
 /src
 │
 ├── domain/             # Lógica
@@ -40,14 +41,18 @@ Estructura de datos: Matrices para modelar el tablero del juego y la lógica de 
 │── resources/          # Recursos
 │   ├── 
 └──
-
+```
 
 ## 🎮 Características principales
 
 🌻 Colocación de plantas en un tablero de matriz
+
 🧟‍♂️ Aparecimiento y movimiento automático de zombies
+
 💥 Interacción entre plantas y zombies (ataques, colisiones)
+
 ⏱️ Temporizador para aparecimiento de los zombies
+
 🖱️ Interfaz gráfica con eventos por clic
 
 
@@ -64,7 +69,10 @@ La interfaz gráfica, construida con Java Swing, permite al usuario interactuar 
 ## 👨‍💻 Autor
 
 Juan José Díaz Gómez
+
 Estudiante de Ingeniería de Sistemas
+
 Escuela Colombiana de Ingeniería Julio Garavito
+
 GitHub: @https://github.com/Juan-Jose-D
 
